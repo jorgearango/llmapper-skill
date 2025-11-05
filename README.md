@@ -88,15 +88,17 @@ Claude will automatically detect when to activate the llmapper skill based on yo
 1. **Input** - Provide article via file/URL/text
 2. **Choose perspective** - Select from 3 focusing questions
 3. **Review summary** - Verify extracted concepts
-4. **View map** - Interactive Cytoscape visualization
-5. **Refine** - Regenerate with different focus or try again
+4. **Get visualization** - HTML file saved to `/tmp/concept-map.html`
+5. **Open in browser** - View interactive concept map with full interactivity
+6. **Refine** - Regenerate with different focus or try again
 
 ## Example Output
 
-The skill produces interactive HTML visualizations with:
+The skill produces interactive HTML visualizations saved to `/tmp/concept-map.html`:
 - **Nodes**: Purple rounded boxes containing concepts
 - **Edges**: Labeled arrows showing relationships
-- **Interactivity**: Drag nodes, zoom, pan (when opened in browser)
+- **Interactivity**: Drag nodes, zoom, pan
+- **Usage**: Open the file in any web browser for full interactivity
 
 **Key features:**
 - Emphasizes **why the subject matters**, not just facts
@@ -117,9 +119,9 @@ Stage 1: Summarization (panel of experts)
     ↓
 Stage 2: RDF Knowledge Graph (source of truth)
     ↓
-Stage 3: Cytoscape Visualization (interactive HTML)
+Stage 3: Cytoscape Visualization (saved to /tmp/concept-map.html)
     ↓
-Concept Map Output
+Open in browser for full interactivity
 ```
 
 ### Unified Input Layer
@@ -170,13 +172,13 @@ These prompts contain extensive rules developed through iteration to prevent LLM
 
 ## Important Notes
 
-### Claude Desktop Limitation
+### Output Format
 
-**Known issue:** Cytoscape HTML does not render as a Claude Desktop artifact (requires external CDN which doesn't load in artifacts).
+**File location:** The visualization is saved to `/tmp/concept-map.html`
 
-**Workaround:** Save the HTML file and open in your browser for full interactivity.
+**How to use:** Open the file in any web browser (Chrome, Firefox, Safari, etc.) for full interactivity.
 
-**Future solution:** We're exploring pure SVG output that would work inline in Claude Desktop.
+**Session-persistent:** The file has a fixed name, so it will be overwritten if you generate a new map in the same session. This allows for iterative refinement.
 
 ### Wikipedia Access
 
@@ -228,9 +230,9 @@ The skill includes `prompts/dot.md` (Graphviz DOT) preserved for reference. You 
 - **Solution:** Use file upload instead
 - The skill validates WebFetch output and will notify you
 
-### Diagram Doesn't Display (Claude Desktop)
-- **Expected:** Cytoscape HTML doesn't work as artifact
-- **Solution:** Save HTML and open in browser
+### Can't Find the Visualization
+- **Location:** Check `/tmp/concept-map.html`
+- **How to open:** `open /tmp/concept-map.html` (macOS) or open in any browser
 
 ### Missing Expected Concepts
 - Try regenerating (non-deterministic by design)
@@ -266,7 +268,7 @@ llmapper-skill/
 | Input | Wikipedia URLs | Files, URLs, pasted text |
 | Dependencies | llm, Graphviz, ImageMagick | None (native Claude) |
 | Platform | macOS/Linux | Claude Desktop + Claude Code |
-| Output | PNG file | Interactive HTML |
+| Output | PNG file | Interactive HTML (saved to `/tmp/concept-map.html`) |
 | Focusing | Predefined | User chooses from 3 options |
 | Visualization | Graphviz | Cytoscape.js |
 | Distinctions | Implicit | Explicit emphasis |
@@ -274,9 +276,9 @@ llmapper-skill/
 ## Future Enhancements
 
 ### High Priority
-- [ ] Pure SVG output (works as Claude Desktop artifact)
 - [ ] Automatic fallback to file upload when WebFetch blocked
-- [ ] Format selection (Cytoscape vs. SVG)
+- [ ] Multiple output format options (Cytoscape, Graphviz, Mermaid, etc.)
+- [ ] Custom output directory option (instead of fixed `/tmp/llmapper.html`)
 
 ### Input Expansion
 - [ ] Multiple articles → merged map
@@ -292,11 +294,11 @@ llmapper-skill/
 
 ## Known Limitations
 
-1. **Cytoscape doesn't work as Claude Desktop artifact** - requires browser
+1. **File must be opened in browser** - output saved to `/tmp/concept-map.html`, not rendered inline
 2. **Wikipedia may block WebFetch** - use file upload instead
 3. **Non-deterministic output** - different runs produce different maps (by design)
 4. **Limited to ~15k chars** - very long articles may be truncated
-5. **No external dependencies** - can't use Graphviz directly
+5. **Session file persistence** - `/tmp/concept-map.html` overwritten on each run (feature for iterative refinement)
 
 ## Credits
 

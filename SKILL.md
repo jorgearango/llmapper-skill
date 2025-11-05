@@ -71,7 +71,7 @@ Transform the RDF graph into an interactive HTML visualization using Cytoscape.j
 
 **Prompt location**: `prompts/cytoscape.md`
 
-**Expected output**: Complete HTML file with embedded Cytoscape visualization (works in both Claude Code and Claude Desktop)
+**Expected output**: Complete HTML file saved to `/tmp/concept-map.html` that can be opened in any browser
 
 ## How to Execute
 
@@ -137,13 +137,14 @@ Store the RDF output (you'll need it for step 5)
 ### Step 5: Generate Cytoscape Visualization
 ```
 Apply prompts/cytoscape.md to the RDF from step 4
-Output the complete HTML file
-The user can open it in a browser or Claude will render it as an artifact
+Save the complete HTML file to /tmp/concept-map.html
+Inform the user where the file was saved and how to open it
 ```
 
 ### Step 6: Present the Result
 ```
-Show the interactive concept map
+Confirm the file was saved to /tmp/concept-map.html
+Provide instructions to open in browser
 Offer to refine or regenerate with different focus (including choosing a different focusing question)
 ```
 
@@ -159,7 +160,7 @@ Each prompt file contains detailed instructions. When applying a prompt:
 ### Output Format Requirements
 - **Stage 1**: Markdown with labeled sections
 - **Stage 2**: Pure RDF code, no markdown blocks, no backticks, no comments
-- **Stage 3**: Complete HTML file, no markdown blocks, no backticks, no explanatory text
+- **Stage 3**: Complete HTML file saved to `/tmp/concept-map.html` (not output to chat)
 
 ### Critical Rules Across All Stages
 - No camelCase, snake_case, kebab-case, or PascalCase in labels
@@ -197,9 +198,10 @@ User: [Selects one of the three options]
 [Apply summarization with chosen question]
 [Show summary]
 [Generate RDF internally]
-[Output HTML with Cytoscape visualization]
+[Save HTML visualization to /tmp/concept-map.html]
 
-Here's your interactive concept map! [HTML artifact appears]
+Your concept map has been saved to /tmp/concept-map.html
+Open this file in your browser to view the interactive visualization.
 This map focuses on: [the chosen focusing question perspective]
 You can drag nodes, zoom with scroll, and pan by dragging the background.
 ```
@@ -236,7 +238,8 @@ User: [uploads research-paper.pdf]
 You: I'll create a concept map from this PDF using the LLMapper pipeline.
 [Reads PDF, generates questions, user selects focus, creates map]
 
-Here's your interactive concept map showing the key concepts and their relationships.
+Your concept map has been saved to /tmp/concept-map.html
+Open this file in your browser to view the interactive visualization.
 The map focuses on: [the perspective you chose from the three options]
 ```
 
@@ -265,11 +268,11 @@ You: I'll create a concept map from this article...
 
 ## Technical Context
 
-- **Primary target:** Claude Desktop
+- **Primary target:** Claude Code (CLI) and Claude Desktop
 - **Primary input method:** File uploads (PDFs, text files, etc.) - most reliable
 - **Secondary input method:** URLs (with validation and fallback)
 - **Fallback:** Pasted text
-- Outputs interactive HTML visualizations using Cytoscape.js (loaded from CDN)
+- **Output:** Interactive HTML visualizations saved to `/tmp/concept-map.html` (using Cytoscape.js loaded from CDN)
 - Original LLMapper is a bash script using external tools (llm, Graphviz, ImageMagick)
 - This skill replicates and extends that pipeline using Claude's native capabilities
 - RDF serves as the canonical "source of truth" for the knowledge graph

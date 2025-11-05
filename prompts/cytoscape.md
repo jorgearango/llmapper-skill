@@ -17,13 +17,15 @@ Input will be RDF code. Ignore everything except RDF code.
 
 # OUTPUT
 
-You will output a complete, standalone HTML file with:
+You will create a complete, standalone HTML file with:
 1. Cytoscape.js loaded from CDN
 2. All nodes and edges from the RDF graph
 3. Styled to match the visual appearance of the original Graphviz output (rounded purple boxes, labeled arrows)
 4. Interactive features (drag, zoom, pan)
 
 The HTML must be complete and ready to use - no placeholders, no incomplete sections.
+
+**IMPORTANT:** You must SAVE the HTML file to `/tmp/concept-map.html` using the Write tool. This allows the user to open it in their browser for full interactivity. After saving, inform the user of the file location.
 
 # CONTEXT
 
@@ -197,12 +199,14 @@ const elements = [
 
 # FINAL OUTPUT RULES
 
-- Output ONLY the complete HTML file
-- DO NOT include markdown code blocks (no ```)
-- DO NOT include explanatory text before or after the HTML
-- The HTML must be completely self-contained
+- Generate the complete HTML file (self-contained, no placeholders)
 - Replace [TITLE] with the main subject of the knowledge graph
 - Ensure all JavaScript syntax is valid (commas, quotes, brackets)
-- Test that the HTML would work if saved and opened in a browser
+- SAVE the HTML to `/tmp/concept-map.html` using the Write tool
+- DO NOT output the HTML content in chat - only save to file
+- After saving, inform the user:
+  - Where the file was saved
+  - How to open it (e.g., "Open `/tmp/concept-map.html` in your browser")
+  - That it's interactive (drag nodes, zoom, pan)
 
 This is the RDF code you will convert to an interactive Cytoscape visualization:

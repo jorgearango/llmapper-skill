@@ -33,7 +33,8 @@ The skill processes articles through four sequential stages, each with its own p
    - Transforms RDF into interactive HTML visualization using Cytoscape.js
    - Styled as rounded purple boxes with labeled arrows
    - Interactive: drag nodes, zoom, pan
-   - Output: Complete HTML file (works in both Claude Code and Claude Desktop)
+   - Output: Complete HTML file saved to `/tmp/concept-map.html`
+   - User opens file in browser for full interactivity
    - Note: `prompts/dot.md` is preserved for historical reference but not actively used
 
 ### File Structure
@@ -121,10 +122,11 @@ ls -la ~/.claude/skills/llmapper/SKILL.md
 # Should start with: @prefix ex: <http://example.org/ns#> .
 
 # Validate HTML output (Stage 3)
-# Expected: Complete HTML file, no markdown blocks
+# Expected: Complete HTML file saved to /tmp/concept-map.html
 # Should start with: <!DOCTYPE html>
 # Should include Cytoscape CDN: <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
 # Should have valid JavaScript with elements array
+# Check the file: open /tmp/concept-map.html
 ```
 
 ## Common Gotchas
@@ -133,9 +135,10 @@ ls -la ~/.claude/skills/llmapper/SKILL.md
 
 If the visualization doesn't render, check that:
 - Stage 2 RDF has NO markdown code blocks (```), backticks, or comments
-- Stage 3 HTML has NO markdown code blocks (```), backticks, or explanatory text
+- Stage 3 HTML was saved to `/tmp/concept-map.html` (not output to chat)
 - HTML is complete and valid (check for syntax errors in JavaScript)
 - Cytoscape CDN loads properly (check browser console for errors)
+- User was informed where to find the file
 
 ### Prompt Application Issues
 
@@ -236,9 +239,9 @@ Apply prompts/summarize.md with chosen question → Show summary to user
     ↓
 Apply prompts/rdf.md → Generate RDF (source of truth, stored)
     ↓
-Apply prompts/cytoscape.md → Output complete HTML file
+Apply prompts/cytoscape.md → Save HTML to /tmp/concept-map.html
     ↓
-Interactive concept map rendered (works in Claude Code & Claude Desktop)
+Inform user where to find the file and how to open it
     ↓
 Offer refinement options (including choosing different focusing question)
 ```
