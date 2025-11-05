@@ -1,7 +1,6 @@
 ---
 name: llmapper
 description: Generate concept maps from articles (files, URLs, or text) using a multi-stage LLM pipeline (user-chosen focus → summarize → RDF → Cytoscape)
-version: 2.3.0
 ---
 
 # LLMapper - AI-Generated Concept Maps

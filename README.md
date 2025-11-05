@@ -16,43 +16,56 @@ The skill processes content through four stages:
 
 ## Installation
 
-### Claude Desktop (Recommended)
+### Claude Desktop
 
-1. Download `llmapper.zip` from this repository
+1. Clone or download this repository
 2. Open Claude Desktop
 3. Go to **Settings → Capabilities → Skills**
-4. Click **"Upload skill"**
-5. Select `llmapper.zip`
+4. Click **"Add skill"** and select the `llmapper-skill` directory
 
-### Claude Code
+Alternatively, manually copy to Claude Desktop's skills directory (location varies by platform).
 
-Copy the skill to your Claude Code skills directory:
+### Claude Code (Recommended for Development)
+
+Clone or download this repository, then create a symlink to the skill directory:
 
 ```bash
-cp llmapper.claud ~/.claude/skills/
+# Clone the repository
+git clone https://github.com/yourusername/llmapper-skill.git
+
+# Create symlink (development mode - changes sync automatically)
+ln -s /path/to/llmapper-skill ~/.claude/skills/llmapper
+
+# Or copy the directory (static installation)
+cp -r /path/to/llmapper-skill ~/.claude/skills/llmapper
 ```
 
-Or create a symlink:
-
+Verify installation:
 ```bash
-ln -s /path/to/llmapper-skill/llmapper.claud ~/.claude/skills/llmapper.claud
+ls -la ~/.claude/skills/llmapper/SKILL.md
 ```
 
 ## Usage
 
 ### Invoke the Skill
 
-**Option 1: Explicit command**
-```
-/llmapper
-```
-
-**Option 2: Natural language** (Claude Desktop will auto-detect)
+**Claude Desktop:**
+Upload your skill ZIP via Settings → Capabilities → Skills, then use natural language:
 ```
 Create a concept map from this article
 Generate a knowledge graph of [topic]
 Visualize the relationships in this paper
 ```
+
+**Claude Code:**
+Once installed to `~/.claude/skills/`, use natural language to invoke:
+```
+Create a concept map from this article
+Use the llmapper skill on this URL
+Generate a knowledge graph of [topic]
+```
+
+Claude will automatically detect when to activate the llmapper skill based on your request.
 
 ### Provide Content
 
@@ -233,7 +246,7 @@ The skill includes `prompts/dot.md` (Graphviz DOT) preserved for reference. You 
 
 ```
 llmapper-skill/
-├── llmapper.claud          # Main skill definition
+├── SKILL.md                # Main skill definition (required by Claude Code)
 ├── extract-article.py      # Optional HTML text extractor
 ├── prompts/                # Pipeline stage prompts
 │   ├── focusing-questions.md  # Stage 0: Generate perspectives
@@ -241,8 +254,9 @@ llmapper-skill/
 │   ├── rdf.md              # Stage 2: Knowledge graph
 │   ├── cytoscape.md        # Stage 3: Visualization (active)
 │   └── dot.md              # Stage 3: Graphviz (reference)
-├── CLAUDE.md               # Documentation for Claude Code
-└── README.md               # This file
+├── CLAUDE.md               # Developer documentation
+├── README.md               # This file
+└── LICENSE                 # Project license
 ```
 
 ## Comparison to Original LLMapper

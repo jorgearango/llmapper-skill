@@ -40,7 +40,7 @@ The skill processes articles through four sequential stages, each with its own p
 
 ```
 llmapper-skill/
-├── llmapper.claud          # Main skill definition (invoked with /llmapper)
+├── SKILL.md                # Main skill definition (required by Claude Code)
 ├── extract-article.py      # Generic HTML text extractor (works with any website)
 ├── prompts/                # Pipeline stage prompts (DO NOT modify without testing)
 │   ├── focusing-questions.md  # Stage 0: Generate 3 perspectives for user choice
@@ -48,7 +48,9 @@ llmapper-skill/
 │   ├── rdf.md              # Stage 2: Knowledge graph generation (source of truth)
 │   ├── cytoscape.md        # Stage 3: Interactive visualization (active)
 │   └── dot.md              # Stage 3: Graphviz DOT (preserved for reference)
-└── README.md               # User-facing documentation
+├── CLAUDE.md               # Developer documentation (this file)
+├── README.md               # User-facing documentation
+└── LICENSE                 # Project license
 ```
 
 ## Critical Design Principles
@@ -90,25 +92,25 @@ This architecture enables:
 ### Testing the Skill
 
 ```bash
-# Test in Claude Code by invoking the skill
-/llmapper https://en.wikipedia.org/wiki/Test_Article
+# Test in Claude Code by invoking the skill via natural language
+# In the Claude Code chat:
+"Create a concept map from https://en.wikipedia.org/wiki/Test_Article"
 
-# Or activate the skill first, then provide URL
-/llmapper
-# Then paste: https://en.wikipedia.org/wiki/Test_Article
+# Or:
+"Use the llmapper skill on this article: [paste article text]"
 ```
 
 ### Installing/Updating the Skill
 
 ```bash
 # Create symlink to keep skill synced during development
-ln -s /path/to/llmapper-skill/llmapper.claud ~/.claude/skills/llmapper.claud
+ln -s /path/to/llmapper-skill ~/.claude/skills/llmapper
 
-# Or copy directly
-cp llmapper.claud ~/.claude/skills/
+# Or copy directory directly
+cp -r /path/to/llmapper-skill ~/.claude/skills/llmapper
 
 # Verify installation
-/skills  # In Claude Code
+ls -la ~/.claude/skills/llmapper/SKILL.md
 ```
 
 ### Validating Output Formats
@@ -243,8 +245,10 @@ Offer refinement options (including choosing different focusing question)
 
 ## Related Documentation
 
-- Main skill definition: `llmapper.claud`
+- Main skill definition: `SKILL.md`
 - User documentation: `README.md`
+- Developer documentation: `CLAUDE.md` (this file)
 - Original LLMapper bash tool: https://github.com/yourusername/llmapper (TBD)
 - Graphviz DOT language: https://graphviz.org/doc/info/lang.html
 - RDF Primer: https://www.w3.org/TR/rdf11-primer/
+- Claude Code Skills: https://docs.claude.com/en/docs/claude-code/skills
