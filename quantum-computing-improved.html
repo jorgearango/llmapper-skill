@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Computing - Concept Map (Improved)</title>
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        #cy {
+            width: 100%;
+            height: 800px;
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+        }
+        .info {
+            margin-bottom: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quantum Computing - Real-World Applications & Limitations</h1>
+    <div class="info">Interactive concept map - drag nodes to rearrange, scroll to zoom, click and drag background to pan<br>
+    <strong>Focus:</strong> What role might quantum computing play in transforming applications, and how do limitations shape the timeline?</div>
+    <div id="cy"></div>
+
+    <script>
+        const elements = [
+            { data: { id: 'Quantum Computing', label: 'Quantum Computing' } },
+            { data: { id: 'Cryptography', label: 'Cryptography' } },
+            { data: { id: 'Drug Discovery', label: 'Drug Discovery' } },
+            { data: { id: 'Scientific Simulation', label: 'Scientific Simulation' } },
+            { data: { id: 'Quantum Decoherence', label: 'Quantum Decoherence' } },
+            { data: { id: 'Error Rates', label: 'Error Rates' } },
+            { data: { id: 'Qubits', label: 'Qubits' } },
+            { data: { id: 'RSA Encryption', label: 'RSA Encryption' } },
+            { data: { id: 'Experimental Research', label: 'Experimental Research' } },
+            { data: { id: 'Scalability', label: 'Scalability' } },
+
+            { data: { source: 'Quantum Computing', target: 'Cryptography', label: 'threatens' } },
+            { data: { source: 'Quantum Computing', target: 'Drug Discovery', label: 'revolutionizes' } },
+            { data: { source: 'Quantum Computing', target: 'Scientific Simulation', label: 'accelerates' } },
+            { data: { source: 'Quantum Decoherence', target: 'Quantum Computing', label: 'delays' } },
+            { data: { source: 'Error Rates', target: 'Scalability', label: 'prevents' } },
+            { data: { source: 'Quantum Computing', target: 'RSA Encryption', label: 'breaks' } },
+            { data: { source: 'Experimental Research', target: 'Quantum Computing', label: 'advances' } },
+            { data: { source: 'Quantum Decoherence', target: 'Error Rates', label: 'introduces' } },
+            { data: { source: 'Scalability', target: 'Qubits', label: 'requires' } },
+            { data: { source: 'Qubits', target: 'Quantum Decoherence', label: 'suffer' } },
+            { data: { source: 'Error Rates', target: 'Drug Discovery', label: 'limit' } },
+            { data: { source: 'Error Rates', target: 'Scientific Simulation', label: 'limit' } },
+            { data: { source: 'Experimental Research', target: 'Error Rates', label: 'reduces' } },
+            { data: { source: 'Quantum Computing', target: 'Drug Discovery', label: 'enables' } },
+            { data: { source: 'Quantum Computing', target: 'Scientific Simulation', label: 'enables' } },
+            { data: { source: 'RSA Encryption', target: 'Cryptography', label: 'relies' } },
+            { data: { source: 'Quantum Decoherence', target: 'Scalability', label: 'prevents' } },
+            { data: { source: 'Experimental Research', target: 'Qubits', label: 'improves' } },
+            { data: { source: 'Qubits', target: 'Quantum Computing', label: 'enable' } },
+            { data: { source: 'Scalability', target: 'Drug Discovery', label: 'determines' } },
+            { data: { source: 'Scalability', target: 'Scientific Simulation', label: 'determines' } },
+            { data: { source: 'Error Rates', target: 'Cryptography', label: 'delay' } }
+        ];
+
+        const cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: elements,
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': '#EDEEFA',
+                        'border-color': '#9B8FD9',
+                        'border-width': 2,
+                        'label': 'data(label)',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'font-family': 'Arial',
+                        'font-size': '12px',
+                        'shape': 'roundrectangle',
+                        'padding': '8px',
+                        'width': 'label',
+                        'height': 'label',
+                        'text-wrap': 'wrap',
+                        'text-max-width': '120px'
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 2,
+                        'line-color': '#666',
+                        'target-arrow-color': '#666',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier',
+                        'label': 'data(label)',
+                        'font-size': '10px',
+                        'font-family': 'Arial',
+                        'text-rotation': 'autorotate',
+                        'text-margin-y': -10,
+                        'color': '#444'
+                    }
+                }
+            ],
+            layout: {
+                name: 'cose',
+                idealEdgeLength: 100,
+                nodeOverlap: 20,
+                refresh: 20,
+                fit: true,
+                padding: 30,
+                randomize: false,
+                componentSpacing: 100,
+                nodeRepulsion: 400000,
+                edgeElasticity: 100,
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picasso Concept Map - Cytoscape Test</title>
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        #cy {
+            width: 100%;
+            height: 800px;
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+        }
+        .info {
+            margin-bottom: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pablo Picasso Concept Map</h1>
+    <div class="info">Interactive concept map - drag nodes to rearrange, scroll to zoom, click and drag background to pan</div>
+    <div id="cy"></div>
+
+    <script>
+        // Convert DOT relationships to Cytoscape format
+        const elements = [
+            // Nodes
+            { data: { id: 'Pablo Picasso', label: 'Pablo Picasso' } },
+            { data: { id: 'Cubism', label: 'Cubism' } },
+            { data: { id: 'Guernica', label: 'Guernica' } },
+            { data: { id: 'Les Demoiselles d\'Avignon', label: 'Les Demoiselles d\'Avignon' } },
+            { data: { id: 'Blue Period', label: 'Blue Period' } },
+            { data: { id: 'Painting', label: 'Painting' } },
+            { data: { id: 'Sculpture', label: 'Sculpture' } },
+            { data: { id: 'Spain', label: 'Spain' } },
+            { data: { id: 'France', label: 'France' } },
+            { data: { id: 'Modernism', label: 'Modernism' } },
+            { data: { id: 'Bombing', label: 'Bombing' } },
+            { data: { id: 'War', label: 'War' } },
+            { data: { id: 'Sadness', label: 'Sadness' } },
+            { data: { id: 'Art', label: 'Art' } },
+            { data: { id: 'Representation', label: 'Representation' } },
+
+            // Edges (relationships)
+            { data: { source: 'Pablo Picasso', target: 'Cubism', label: 'co-founded' } },
+            { data: { source: 'Pablo Picasso', target: 'Guernica', label: 'created' } },
+            { data: { source: 'Pablo Picasso', target: 'Les Demoiselles d\'Avignon', label: 'created' } },
+            { data: { source: 'Pablo Picasso', target: 'Blue Period', label: 'developed' } },
+            { data: { source: 'Cubism', target: 'Painting', label: 'revolutionized' } },
+            { data: { source: 'Guernica', target: 'Bombing', label: 'depicted' } },
+            { data: { source: 'Guernica', target: 'War', label: 'protested' } },
+            { data: { source: 'Les Demoiselles d\'Avignon', target: 'Cubism', label: 'pioneered' } },
+            { data: { source: 'Blue Period', target: 'Sadness', label: 'characterized' } },
+            { data: { source: 'Pablo Picasso', target: 'Painting', label: 'practiced' } },
+            { data: { source: 'Pablo Picasso', target: 'Sculpture', label: 'practiced' } },
+            { data: { source: 'Pablo Picasso', target: 'Spain', label: 'left' } },
+            { data: { source: 'Pablo Picasso', target: 'France', label: 'lived' } },
+            { data: { source: 'Cubism', target: 'Modernism', label: 'influenced' } },
+            { data: { source: 'Painting', target: 'Modernism', label: 'expressed' } },
+            { data: { source: 'Sculpture', target: 'Modernism', label: 'expressed' } },
+            { data: { source: 'France', target: 'Pablo Picasso', label: 'hosted' } },
+            { data: { source: 'Spain', target: 'Pablo Picasso', label: 'birthed' } },
+            { data: { source: 'Guernica', target: 'Spain', label: 'represented' } },
+            { data: { source: 'Modernism', target: 'Art', label: 'transformed' } },
+            { data: { source: 'Cubism', target: 'Representation', label: 'challenged' } },
+        ];
+
+        const cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: elements,
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': '#EDEEFA',
+                        'border-color': '#9B8FD9',
+                        'border-width': 2,
+                        'label': 'data(label)',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'font-family': 'Arial',
+                        'font-size': '12px',
+                        'shape': 'roundrectangle',
+                        'padding': '8px',
+                        'width': 'label',
+                        'height': 'label',
+                        'text-wrap': 'wrap',
+                        'text-max-width': '120px'
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 2,
+                        'line-color': '#666',
+                        'target-arrow-color': '#666',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier',
+                        'label': 'data(label)',
+                        'font-size': '10px',
+                        'font-family': 'Arial',
+                        'text-rotation': 'autorotate',
+                        'text-margin-y': -10,
+                        'color': '#444'
+                    }
+                }
+            ],
+            layout: {
+                name: 'cose',
+                idealEdgeLength: 100,
+                nodeOverlap: 20,
+                refresh: 20,
+                fit: true,
+                padding: 30,
+                randomize: false,
+                componentSpacing: 100,
+                nodeRepulsion: 400000,
+                edgeElasticity: 100,
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0
+            }
+        });
+    </script>
+</body>
+</html>

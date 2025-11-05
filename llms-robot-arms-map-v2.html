@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMs as Specialized Tools - Concept Map</title>
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        #cy {
+            width: 100%;
+            height: 800px;
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+        }
+        .info {
+            margin-bottom: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>LLMs as Specialized Tools for Knowledge Work</h1>
+    <div class="info">Interactive concept map - drag nodes to rearrange, scroll to zoom, click and drag background to pan<br>
+    <strong>Focus:</strong> How treating LLMs as specialized tools challenges automation assumptions and transforms the economics of knowledge work</div>
+    <div id="cy"></div>
+
+    <script>
+        const elements = [
+            { data: { id: 'LLMs', label: 'LLMs' } },
+            { data: { id: 'Specialized Tools', label: 'Specialized Tools' } },
+            { data: { id: 'General-Purpose Agents', label: 'General-Purpose Agents' } },
+            { data: { id: 'Knowledge Work', label: 'Knowledge Work' } },
+            { data: { id: 'Workflow Redesign', label: 'Workflow Redesign' } },
+            { data: { id: 'Automation', label: 'Automation' } },
+            { data: { id: 'Cost-Effectiveness', label: 'Cost-Effectiveness' } },
+            { data: { id: 'Human Flexibility', label: 'Human Flexibility' } },
+            { data: { id: 'Robot Arms', label: 'Robot Arms' } },
+            { data: { id: 'Factory Automation', label: 'Factory Automation' } },
+            { data: { id: 'AGI', label: 'AGI' } },
+
+            { data: { source: 'LLMs', target: 'Specialized Tools', label: 'function as' } },
+            { data: { source: 'Specialized Tools', target: 'General-Purpose Agents', label: 'contrast' } },
+            { data: { source: 'General-Purpose Agents', target: 'AGI', label: 'represent' } },
+            { data: { source: 'LLMs', target: 'AGI', label: 'differ from' } },
+            { data: { source: 'Workflow Redesign', target: 'Specialized Tools', label: 'accommodate' } },
+            { data: { source: 'Workflow Redesign', target: 'Cost-Effectiveness', label: 'enable' } },
+            { data: { source: 'General-Purpose Agents', target: 'Human Flexibility', label: 'require' } },
+            { data: { source: 'LLMs', target: 'Human Flexibility', label: 'lack' } },
+            { data: { source: 'Human Flexibility', target: 'Specialized Tools', label: 'exceed' } },
+            { data: { source: 'Factory Automation', target: 'Workflow Redesign', label: 'demonstrate' } },
+            { data: { source: 'Robot Arms', target: 'Specialized Tools', label: 'exemplify' } },
+            { data: { source: 'Robot Arms', target: 'Human Flexibility', label: 'replace' } },
+            { data: { source: 'Specialized Tools', target: 'Knowledge Work', label: 'transform' } },
+            { data: { source: 'Automation', target: 'General-Purpose Agents', label: 'assume' } },
+            { data: { source: 'Specialized Tools', target: 'Automation', label: 'challenge' } },
+            { data: { source: 'Cost-Effectiveness', target: 'Workflow Redesign', label: 'drive' } },
+            { data: { source: 'AGI', target: 'Automation', label: 'delay' } },
+            { data: { source: 'LLMs', target: 'Automation', label: 'enable' } },
+            { data: { source: 'Workflow Redesign', target: 'Automation', label: 'constrain' } },
+            { data: { source: 'Knowledge Work', target: 'Workflow Redesign', label: 'require' } },
+            { data: { source: 'Specialized Tools', target: 'General-Purpose Agents', label: 'outperform' } },
+            { data: { source: 'Cost-Effectiveness', target: 'AGI', label: 'oppose' } }
+        ];
+
+        const cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: elements,
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': '#EDEEFA',
+                        'border-color': '#9B8FD9',
+                        'border-width': 2,
+                        'label': 'data(label)',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'font-family': 'Arial',
+                        'font-size': '12px',
+                        'shape': 'roundrectangle',
+                        'padding': '8px',
+                        'width': 'label',
+                        'height': 'label',
+                        'text-wrap': 'wrap',
+                        'text-max-width': '120px'
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 2,
+                        'line-color': '#666',
+                        'target-arrow-color': '#666',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier',
+                        'label': 'data(label)',
+                        'font-size': '10px',
+                        'font-family': 'Arial',
+                        'text-rotation': 'autorotate',
+                        'text-margin-y': -10,
+                        'color': '#444'
+                    }
+                }
+            ],
+            layout: {
+                name: 'cose',
+                idealEdgeLength: 100,
+                nodeOverlap: 20,
+                refresh: 20,
+                fit: true,
+                padding: 30,
+                randomize: false,
+                componentSpacing: 100,
+                nodeRepulsion: 400000,
+                edgeElasticity: 100,
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0
+            }
+        });
+    </script>
+</body>
+</html>

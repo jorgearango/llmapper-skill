@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Demoiselles d'Avignon - Concept Map</title>
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        #cy {
+            width: 100%;
+            height: 800px;
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+        }
+        .info {
+            margin-bottom: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Les Demoiselles d'Avignon</h1>
+    <div class="info">Interactive concept map - drag nodes to rearrange, scroll to zoom, click and drag background to pan</div>
+    <div id="cy"></div>
+
+    <script>
+        const elements = [
+            { data: { id: 'Les Demoiselles d\'Avignon', label: 'Les Demoiselles d\'Avignon' } },
+            { data: { id: 'Pablo Picasso', label: 'Pablo Picasso' } },
+            { data: { id: 'Cubism', label: 'Cubism' } },
+            { data: { id: 'Henri Matisse', label: 'Henri Matisse' } },
+            { data: { id: 'Primitivism', label: 'Primitivism' } },
+            { data: { id: 'Brothel', label: 'Brothel' } },
+            { data: { id: 'Museum of Modern Art', label: 'Museum of Modern Art' } },
+            { data: { id: 'Barcelona', label: 'Barcelona' } },
+            { data: { id: 'African Masks', label: 'African Masks' } },
+            { data: { id: 'Avant-garde', label: 'Avant-garde' } },
+            { data: { id: 'Painting', label: 'Painting' } },
+            { data: { id: 'Fauvism', label: 'Fauvism' } },
+            { data: { id: 'Modernism', label: 'Modernism' } },
+            { data: { id: 'Representation', label: 'Representation' } },
+            { data: { id: 'Conventions', label: 'Conventions' } },
+            { data: { id: 'Paris', label: 'Paris' } },
+
+            { data: { source: 'Pablo Picasso', target: 'Les Demoiselles d\'Avignon', label: 'created' } },
+            { data: { source: 'Les Demoiselles d\'Avignon', target: 'Cubism', label: 'pioneered' } },
+            { data: { source: 'Pablo Picasso', target: 'Henri Matisse', label: 'challenged' } },
+            { data: { source: 'Les Demoiselles d\'Avignon', target: 'Brothel', label: 'depicted' } },
+            { data: { source: 'Primitivism', target: 'Les Demoiselles d\'Avignon', label: 'influenced' } },
+            { data: { source: 'African Masks', target: 'Pablo Picasso', label: 'inspired' } },
+            { data: { source: 'Les Demoiselles d\'Avignon', target: 'Avant-garde', label: 'shocked' } },
+            { data: { source: 'Museum of Modern Art', target: 'Les Demoiselles d\'Avignon', label: 'houses' } },
+            { data: { source: 'Brothel', target: 'Barcelona', label: 'located' } },
+            { data: { source: 'Les Demoiselles d\'Avignon', target: 'Painting', label: 'revolutionized' } },
+            { data: { source: 'Pablo Picasso', target: 'Avant-garde', label: 'led' } },
+            { data: { source: 'Henri Matisse', target: 'Fauvism', label: 'led' } },
+            { data: { source: 'Cubism', target: 'Modernism', label: 'transformed' } },
+            { data: { source: 'Primitivism', target: 'Pablo Picasso', label: 'liberated' } },
+            { data: { source: 'African Masks', target: 'Representation', label: 'shaped' } },
+            { data: { source: 'Les Demoiselles d\'Avignon', target: 'Conventions', label: 'challenged' } },
+            { data: { source: 'Avant-garde', target: 'Les Demoiselles d\'Avignon', label: 'rejected' } },
+            { data: { source: 'Pablo Picasso', target: 'Cubism', label: 'developed' } },
+            { data: { source: 'Henri Matisse', target: 'Paris', label: 'exhibited' } },
+            { data: { source: 'Barcelona', target: 'Pablo Picasso', label: 'inspired' } },
+            { data: { source: 'Museum of Modern Art', target: 'Les Demoiselles d\'Avignon', label: 'acquired' } }
+        ];
+
+        const cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: elements,
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': '#EDEEFA',
+                        'border-color': '#9B8FD9',
+                        'border-width': 2,
+                        'label': 'data(label)',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'font-family': 'Arial',
+                        'font-size': '12px',
+                        'shape': 'roundrectangle',
+                        'padding': '8px',
+                        'width': 'label',
+                        'height': 'label',
+                        'text-wrap': 'wrap',
+                        'text-max-width': '120px'
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 2,
+                        'line-color': '#666',
+                        'target-arrow-color': '#666',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier',
+                        'label': 'data(label)',
+                        'font-size': '10px',
+                        'font-family': 'Arial',
+                        'text-rotation': 'autorotate',
+                        'text-margin-y': -10,
+                        'color': '#444'
+                    }
+                }
+            ],
+            layout: {
+                name: 'cose',
+                idealEdgeLength: 100,
+                nodeOverlap: 20,
+                refresh: 20,
+                fit: true,
+                padding: 30,
+                randomize: false,
+                componentSpacing: 100,
+                nodeRepulsion: 400000,
+                edgeElasticity: 100,
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0
+            }
+        });
+    </script>
+</body>
+</html>
