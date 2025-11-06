@@ -14,46 +14,18 @@ The skill processes content through four stages:
 3. **RDF Generation** - Structure as knowledge graph (canonical source of truth)
 4. **Mermaid Rendering** - Visual flowchart diagram that renders inline as Claude artifact
 
-## Key Features
-
-✨ **Concise by Default** - No verbose narration; just shows questions and final diagram
-📁 **Multiple Input Methods** - File uploads (PDFs, text), URLs, or pasted text
-🎯 **User-Chosen Focus** - Select from 3 different perspectives on why the subject matters
-🔄 **Iterative Refinement** - Request changes; RDF updates first, then visualization regenerates
-🎨 **Inline Rendering** - Mermaid diagrams display as artifacts in Claude with white backgrounds
-💾 **Descriptive Filenames** - Saves to `/tmp/[subject]-concept-map.mermaid` for reuse
-🧠 **RDF Source of Truth** - All changes flow through canonical knowledge graph
-🌗 **Dark Mode Compatible** - White container ensures legibility in any theme
-📊 **Rich Complexity** - Preserves all concepts and relationships (10+ nodes, 20+ edges)
-🔍 **Emphasis on Distinctions** - Highlights contrasts and opposing concepts for deeper understanding
-
 ## Installation
 
-### Claude Desktop
+**Option 1: Download ZIP (easiest)**
+1. Download [llmapper-skill.zip](llmapper-skill.zip)
+2. Unzip to `~/.claude/skills/llmapper`
 
-1. Clone or download this repository
-2. Open Claude Desktop
-3. Go to **Settings → Capabilities → Skills**
-4. Click **"Add skill"** and select the `llmapper-skill` directory
-
-Alternatively, manually copy to Claude Desktop's skills directory (location varies by platform).
-
-### Claude Code (Recommended for Development)
-
-Clone or download this repository, then create a symlink to the skill directory:
-
+**Option 2: Clone repository**
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/llmapper-skill.git
-
-# Create symlink (development mode - changes sync automatically)
-ln -s /path/to/llmapper-skill ~/.claude/skills/llmapper
-
-# Or copy the directory (static installation)
-cp -r /path/to/llmapper-skill ~/.claude/skills/llmapper
+git clone http://github.com/jorgearango/llmapper-skill ~/.claude/skills/llmapper
 ```
 
-Verify installation:
+**Verify installation:**
 ```bash
 ls -la ~/.claude/skills/llmapper/SKILL.md
 ```
@@ -62,16 +34,7 @@ ls -la ~/.claude/skills/llmapper/SKILL.md
 
 ### Invoke the Skill
 
-**Claude Desktop:**
-Upload your skill ZIP via Settings → Capabilities → Skills, then use natural language:
-```
-Create a concept map from this article
-Generate a knowledge graph of [topic]
-Visualize the relationships in this paper
-```
-
-**Claude Code:**
-Once installed to `~/.claude/skills/`, use natural language to invoke:
+Use natural language to invoke:
 ```
 Create a concept map from this article
 Use the llmapper skill on this URL
@@ -119,42 +82,6 @@ Claude will automatically detect when to activate the llmapper skill based on yo
 - Explains each processing stage
 - Detailed file save information
 - Say "verbose mode" or "show me the details" to activate
-
-## Example Output
-
-### Mermaid Diagrams (Default)
-
-The skill produces Mermaid flowchart diagrams with dual output:
-
-**Visual Characteristics:**
-- **Inline artifact**: Renders immediately in Claude interface
-- **White container**: Subgraph with white background for dark/light mode compatibility
-- **White edge labels**: Readable label backgrounds regardless of theme
-- **Purple nodes**: Rounded boxes with #EDEEFA fill and #9B8FD9 borders
-- **Labeled edges**: Arrows with verb phrases showing relationships
-- **Rich complexity**: All concepts (10+) and relationships (20+) from knowledge graph
-
-**File Output:**
-- **Descriptive filename**: `to-the-lighthouse-concept-map.mermaid`
-- **Extension**: `.mermaid` (required for Claude artifact rendering)
-- **Location**: `/tmp/[subject]-concept-map.mermaid`
-- **Portable**: Works as Claude artifact, Markdown viewers, GitHub comments
-- **Reusable**: Upload to any Mermaid-compatible tool
-
-**Content Emphasis:**
-- Focuses on **why the subject matters**, not just what it is
-- Highlights **distinctions and contrasts** (e.g., "Centralized" vs. "Distributed")
-- Uses strong verbs: "threatens", "enables", "transforms", "challenges"
-- Non-deterministic - each run explores different valid perspectives
-
-### Alternative: Cytoscape HTML (Interactive)
-
-Request HTML output for interactive features:
-- Saved to `/tmp/[subject]-concept-map.html` with descriptive filename
-- Drag nodes to rearrange
-- Zoom with mouse wheel
-- Pan by clicking and dragging background
-- Open in any web browser (Chrome, Firefox, Safari)
 
 ## How It Works
 
@@ -240,53 +167,6 @@ These prompts contain extensive rules developed through iteration to prevent LLM
 - White edge label backgrounds
 - Ensures legibility in both dark and light modes
 - Professional appearance across all viewing contexts
-
-## Important Notes
-
-### Output Format Details
-
-**Mermaid (Default):**
-- **Inline rendering**: Appears as Claude artifact immediately
-- **Saved file**: `/tmp/[subject]-concept-map.mermaid`
-- **Extension**: `.mermaid` required for Claude artifact support
-- **Format**: Raw Mermaid code with init directive and subgraph container
-
-Filename examples:
-- "To the Lighthouse" → `to-the-lighthouse-concept-map.mermaid`
-- "Artificial Intelligence" → `artificial-intelligence-concept-map.mermaid`
-- "Climate Change Impact" → `climate-change-impact-concept-map.mermaid`
-
-File usage:
-- Open in any Markdown viewer (VS Code, Typora, Obsidian)
-- Paste into GitHub comments/issues for inline rendering
-- Upload to Mermaid Live Editor for editing
-- Share with descriptive filename instead of generic name
-
-**Cytoscape HTML (Alternative):**
-- Request with: "use Cytoscape" or "generate HTML version"
-- Saved to: `/tmp/[subject]-concept-map.html`
-- Open in any web browser (Chrome, Firefox, Safari)
-- Full interactivity: drag nodes, zoom, pan
-
-**Iterative Refinement:**
-- Files use article subject as filename
-- Regenerating overwrites previous file
-- Enables iterative refinement workflow
-- Each edit updates RDF first, then visualization
-
-### Wikipedia Access
-
-Wikipedia and some other sites may block WebFetch. **Solution:** Upload Wikipedia articles as PDFs or paste the text.
-
-**Workflow:**
-1. Go to Wikipedia article in browser
-2. File → Print → Save as PDF
-3. Upload PDF to Claude Desktop
-4. Run `/llmapper`
-
-### Optional: Text Extraction (Claude Code only)
-
-The `extract-article.py` script provides faster HTML text extraction but is optional. The skill works without it using WebFetch.
 
 ## Customization
 
@@ -384,70 +264,6 @@ This ensures consistency and enables multiple iterative refinements.
 - Explains what changed in the visualization
 - Detailed confirmation of save location
 
-## Project Structure
-
-```
-llmapper-skill/
-├── SKILL.md                # Main skill definition (required by Claude Code)
-├── extract-article.py      # Optional HTML text extractor
-├── prompts/                # Pipeline stage prompts
-│   ├── focusing-questions.md  # Stage 0: Generate perspectives
-│   ├── summarize.md        # Stage 1: Extract concepts
-│   ├── rdf.md              # Stage 2: Knowledge graph
-│   ├── mermaid.md          # Stage 3: Mermaid visualization (default)
-│   ├── cytoscape.md        # Stage 3: Cytoscape HTML (alternative)
-│   └── dot.md              # Stage 3: Graphviz (reference)
-├── CLAUDE.md               # Developer documentation
-├── README.md               # This file
-└── LICENSE                 # Project license
-```
-
-## Comparison to Original LLMapper
-
-| Feature | Original (Bash) | Skill (Claude) |
-|---------|----------------|----------------|
-| Input | Wikipedia URLs | Files, URLs, pasted text |
-| Dependencies | llm, Graphviz, ImageMagick | None (native Claude) |
-| Platform | macOS/Linux | Claude Desktop + Claude Code + Web |
-| Output | PNG file | Markdown with Mermaid or HTML |
-| Focusing | Predefined | User chooses from 3 options |
-| Visualization | Graphviz | Mermaid (default), Cytoscape.js (alternative) |
-| Distinctions | Implicit | Explicit emphasis |
-| Rendering | External file | Saved file (can paste for inline) |
-
-## Recent Updates
-
-### Completed Features
-- ✅ **Mermaid visualization** - Default format with inline rendering
-- ✅ **Concise mode** - Silent processing with minimal output
-- ✅ **White background container** - Dark/light mode compatibility
-- ✅ **White edge labels** - Readable in all themes
-- ✅ **Descriptive filenames** - Subject-based naming instead of generic
-- ✅ **RDF-first workflow** - Iterative refinement through canonical source
-- ✅ **Dual output** - Inline artifact + saved file
-- ✅ **File extension** - `.mermaid` for Claude artifact rendering
-
-## Future Enhancements
-
-### High Priority
-- [ ] Automatic fallback to file upload when WebFetch blocked
-- [ ] User preference for output format (Mermaid, Cytoscape, Graphviz)
-- [ ] Custom output directory option for files (instead of fixed `/tmp/` directory)
-
-### Input Expansion
-- [ ] Multiple articles → merged map
-- [ ] YouTube transcript support
-- [ ] Academic paper parsing (citations)
-
-### Advanced Features
-- [x] Edit RDF and regenerate visualization (completed via RDF-first workflow)
-- [ ] Export RDF to file for external use
-- [ ] Import existing RDF to generate new visualizations
-- [ ] Merge/compare multiple maps
-- [ ] Confidence scores for relationships
-- [ ] Temporal maps (show evolution over time)
-- [ ] Visual diff between concept map versions
-
 ## Known Limitations
 
 1. **Mermaid layout constraints** - Automatic layout may not be optimal for very large graphs (30+ nodes); consider requesting Cytoscape HTML for complex graphs
@@ -458,32 +274,19 @@ llmapper-skill/
 6. **Fixed output location** - Files save to `/tmp/` directory; future versions may support custom paths
 7. **Session file persistence** - Regenerating a map for same subject overwrites previous file (feature for iterative refinement)
 
-## Credits
-
-Based on the original LLMapper bash tool by Jorge Arango.
-
-Prompts developed through extensive iteration and testing.
-
-Uses:
-- "Panel of experts" prompt engineering pattern
-- RDF as canonical knowledge representation (source of truth)
-- RDF-first workflow for iterative refinement
-- Mermaid for portable visualization (default)
-- Cytoscape.js for interactive HTML visualization (alternative)
-- Distinction/contrast emphasis for deeper understanding
-
 ## Related Resources
 
+- [Original LLMapper bash tool](http://github.com/jorgearango/llmapper)
 - [Mermaid Documentation](https://mermaid.js.org/intro/)
 - [Mermaid Flowchart Syntax](https://mermaid.js.org/syntax/flowchart.html)
 - [Cytoscape.js Documentation](https://js.cytoscape.org/)
 - [RDF Primer](https://www.w3.org/TR/rdf11-primer/)
 - [Concept Mapping Theory](https://en.wikipedia.org/wiki/Concept_map)
-- [Claude Desktop Skills](https://docs.claude.com/en/docs/claude-code/skills)
+- [Claude Skills Documentation](https://docs.claude.com/en/docs/claude-code/skills)
 
 ## License
 
-[To be specified]
+Apache 2.0
 
 ## Questions or Issues?
 
