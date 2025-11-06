@@ -25,7 +25,20 @@ You will create a complete Mermaid flowchart diagram with:
 
 The Mermaid code must be complete and ready to render - no placeholders, no incomplete sections.
 
-**IMPORTANT:** You must SAVE the Mermaid diagram to `/tmp/concept-map.md` using the Write tool. The file should contain a markdown code block with the mermaid diagram. After saving, inform the user of the file location and how to use it.
+**IMPORTANT OUTPUT REQUIREMENTS:**
+1. Generate a descriptive filename based on the article subject:
+   - Take the main subject from the RDF knowledge graph
+   - Convert to lowercase
+   - Replace spaces with hyphens
+   - Append "-concept-map.mermaid" (NOT .md - must use .mermaid extension for Claude artifacts)
+   - Example: "To the Lighthouse" → "to-the-lighthouse-concept-map.mermaid"
+   - Keep it short (2-5 words max from the title)
+2. SAVE the Mermaid diagram to `/tmp/[generated-filename]` using the Write tool
+3. The saved file should contain ONLY the Mermaid code (no markdown code blocks, no backticks)
+4. ALSO output the Mermaid diagram in chat in a ```mermaid code block for inline rendering
+5. After saving and displaying, inform the user that:
+   - The diagram is displayed above as an artifact
+   - A copy has been saved to `/tmp/[filename]` for reuse
 
 # CONTEXT
 
@@ -69,16 +82,21 @@ flowchart TD
 ## Styling Template
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#EDEEFA','primaryTextColor':'#000','primaryBorderColor':'#9B8FD9','lineColor':'#666','fontFamily':'Arial','edgeLabelBackground':'#ffffff'}}}%%
 flowchart TD
-    %% Define styles to match original purple box design
-    classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9,stroke-width:2px,color:#000,font-family:Arial
+    %% Define styles to match original purple box design with white background
+    classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9,stroke-width:2px,color:#000
 
-    %% Nodes
-    Node1[Concept 1]:::conceptNode
-    Node2[Concept 2]:::conceptNode
+    subgraph diagram [" "]
+        %% Nodes
+        Node1[Concept 1]:::conceptNode
+        Node2[Concept 2]:::conceptNode
 
-    %% Relationships
-    Node1 -->|verb phrase| Node2
+        %% Relationships
+        Node1 -->|verb phrase| Node2
+    end
+
+    style diagram fill:#ffffff,stroke:#cccccc,stroke-width:2px
 ```
 
 # RULES FOR CONVERSION
@@ -138,16 +156,21 @@ rel:exemplifies ex:LesDemoiselles ex:Cubism .
 
 Output:
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#EDEEFA','primaryTextColor':'#000','primaryBorderColor':'#9B8FD9','lineColor':'#666','fontFamily':'Arial','edgeLabelBackground':'#ffffff'}}}%%
 flowchart TD
-    classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9,stroke-width:2px,color:#000,font-family:Arial
+    classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9,stroke-width:2px,color:#000
 
-    Pablo_Picasso[Pablo Picasso]:::conceptNode
-    Cubism[Cubism]:::conceptNode
-    Les_Demoiselles[Les Demoiselles]:::conceptNode
+    subgraph diagram [" "]
+        Pablo_Picasso[Pablo Picasso]:::conceptNode
+        Cubism[Cubism]:::conceptNode
+        Les_Demoiselles[Les Demoiselles]:::conceptNode
 
-    Pablo_Picasso -->|co-founded| Cubism
-    Pablo_Picasso -->|created| Les_Demoiselles
-    Les_Demoiselles -->|exemplifies| Cubism
+        Pablo_Picasso -->|co-founded| Cubism
+        Pablo_Picasso -->|created| Les_Demoiselles
+        Les_Demoiselles -->|exemplifies| Cubism
+    end
+
+    style diagram fill:#ffffff,stroke:#cccccc,stroke-width:2px
 ```
 
 # PRESERVING RICHNESS AND COMPLEXITY
@@ -170,31 +193,126 @@ For graphs with 20+ nodes:
 
 # FINAL OUTPUT RULES
 
-- Generate the complete Mermaid code as a markdown file
-- Start with triple backticks and `mermaid` language identifier
+**Step 1: Output to Chat (for inline rendering)**
+- Output the Mermaid diagram directly in your response using a markdown code block
+- CRITICAL: Do NOT describe the code block, just output it naturally in your response
+- Start with triple backticks and `mermaid` language identifier (```mermaid)
+- FIRST LINE must be the init directive with white edge label backgrounds:
+  %%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#EDEEFA','primaryTextColor':'#000','primaryBorderColor':'#9B8FD9','lineColor':'#666','fontFamily':'Arial','edgeLabelBackground':'#ffffff'}}}%%
 - Use `flowchart TD` or `flowchart LR` (choose based on graph structure)
 - Include the classDef for conceptNode styling immediately after flowchart declaration
-- List all nodes with their labels and :::conceptNode class
-- List all relationships with proper verb labels
-- Use the purple color scheme (#EDEEFA fill, #9B8FD9 stroke) to match original design
-- Close with triple backticks
+- CRITICAL: Wrap all content in a subgraph with white background:
+  subgraph diagram [" "]
+      [all nodes and relationships here]
+  end
+  style diagram fill:#ffffff,stroke:#cccccc,stroke-width:2px
+- List all nodes with their labels and :::conceptNode class INSIDE the subgraph
+- List all relationships with proper verb labels INSIDE the subgraph
+- Use the purple color scheme (#EDEEFA fill, #9B8FD9 stroke)
+- Close with triple backticks (```)
 - Ensure all syntax is valid Mermaid (test mentally for common errors)
-- SAVE the file to `/tmp/concept-map.md` using the Write tool
-- DO NOT output the Mermaid content in chat - only save to file
-- After saving, inform the user:
-  - Where the file was saved
-  - How to view it (e.g., "Open `/tmp/concept-map.md` in any markdown viewer or paste into Claude/GitHub")
-  - That Claude and GitHub can render it inline
+- The code block should render as a visual diagram automatically in Claude
+- Do NOT say "here's the Mermaid code" or "```mermaid" as text - just output the code block
 
-File format:
+**Step 2: Generate Descriptive Filename**
+- Extract the main subject from the RDF knowledge graph (the central concept)
+- Create a filename: convert to lowercase, replace spaces with hyphens, append "-concept-map.mermaid"
+- CRITICAL: Use .mermaid extension (NOT .md) for Claude artifact rendering
+- Examples:
+  - "To the Lighthouse" → "to-the-lighthouse-concept-map.mermaid"
+  - "Artificial Intelligence" → "artificial-intelligence-concept-map.mermaid"
+  - "Climate Change" → "climate-change-concept-map.mermaid"
+- Keep filename short (2-5 words from the title)
+
+**Step 3: Save to File (for persistence)**
+- SAVE the Mermaid code to `/tmp/[generated-filename]` using the Write tool
+- IMPORTANT: The file should contain ONLY the raw Mermaid code (NO markdown code blocks, NO triple backticks)
+- Start directly with the init directive, then flowchart declaration, then nodes and relationships
+- This format is required for Claude to render it as an artifact when the file is opened
+- This creates a portable copy the user can reuse
+
+**Step 4: Inform User**
+After all steps above, inform the user:
+- Mention that the concept map is displayed above (rendered as a visual diagram)
+- State that a copy has been saved to `/tmp/[actual-filename]` for future use
+- Note that they can open the file in any markdown viewer or share it
+- IMPORTANT: Keep your explanation brief and after the diagram - don't announce the diagram before showing it
+
+Diagram format for CHAT OUTPUT (with code block):
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#EDEEFA','primaryTextColor':'#000','primaryBorderColor':'#9B8FD9','lineColor':'#666','fontFamily':'Arial','edgeLabelBackground':'#ffffff'}}}%%
 flowchart TD
-    classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9,stroke-width:2px,color:#000,font-family:Arial
+    classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9,stroke-width:2px,color:#000
 
-    %% All nodes here with :::conceptNode class
+    subgraph diagram [" "]
+        %% All nodes here with :::conceptNode class
 
-    %% All relationships here with -->|label| syntax
+        %% All relationships here with -->|label| syntax
+    end
+
+    style diagram fill:#ffffff,stroke:#cccccc,stroke-width:2px
 ```
+
+Diagram format for FILE OUTPUT (NO code blocks, raw Mermaid only):
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#EDEEFA','primaryTextColor':'#000','primaryBorderColor':'#9B8FD9','lineColor':'#666','fontFamily':'Arial','edgeLabelBackground':'#ffffff'}}}%%
+flowchart TD
+    classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9,stroke-width:2px,color:#000
+
+    subgraph diagram [" "]
+        %% All nodes here with :::conceptNode class
+
+        %% All relationships here with -->|label| syntax
+    end
+
+    style diagram fill:#ffffff,stroke:#cccccc,stroke-width:2px
+
+# CRITICAL OUTPUT FORMAT EXAMPLE
+
+**CORRECT way to output IN CHAT (this renders as a diagram):**
+
+Just output the code block naturally in your response:
+
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#EDEEFA','primaryTextColor':'#000','primaryBorderColor':'#9B8FD9','lineColor':'#666','fontFamily':'Arial','edgeLabelBackground':'#ffffff'}}}%%
+flowchart TD
+    classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9,stroke-width:2px,color:#000
+
+    subgraph diagram [" "]
+        Node1[Example Node]:::conceptNode
+        Node2[Another Node]:::conceptNode
+
+        Node1 -->|relates to| Node2
+    end
+
+    style diagram fill:#ffffff,stroke:#cccccc,stroke-width:2px
+```
+
+**CORRECT way to save TO FILE:**
+
+File: to-the-lighthouse-concept-map.mermaid
+Content (NO backticks, NO code block markers):
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#EDEEFA','primaryTextColor':'#000','primaryBorderColor':'#9B8FD9','lineColor':'#666','fontFamily':'Arial','edgeLabelBackground':'#ffffff'}}}%%
+flowchart TD
+    classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9,stroke-width:2px,color:#000
+
+    subgraph diagram [" "]
+        Node1[Example Node]:::conceptNode
+        Node2[Another Node]:::conceptNode
+
+        Node1 -->|relates to| Node2
+    end
+
+    style diagram fill:#ffffff,stroke:#cccccc,stroke-width:2px
+
+**WRONG way to output (this shows code, not a diagram):**
+
+Do NOT do this:
+"Here's the Mermaid code:"
+\`\`\`mermaid
+(code here)
+\`\`\`
+
+Do NOT announce "here's the code" or describe the code block - just output it directly.
 
 # COMMON PITFALLS TO AVOID
 

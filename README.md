@@ -1,6 +1,6 @@
 # LLMapper Skill
 
-A Claude skill that generates concept maps from articles using a multi-stage LLM pipeline. Works with **file uploads** (PDFs, text files), **URLs**, and **pasted text**. Saves Mermaid diagrams that can be viewed in any markdown renderer or pasted into Claude/GitHub.
+A Claude skill that generates concept maps from articles using a multi-stage LLM pipeline. Works with **file uploads** (PDFs, text files), **URLs**, and **pasted text**. Displays Mermaid diagrams inline in Claude and saves them for reuse.
 
 ## Overview
 
@@ -11,8 +11,21 @@ LLMapper transforms articles into interactive visual knowledge graphs that answe
 The skill processes content through four stages:
 1. **Focusing Questions** - Generate 3 perspectives, user chooses one
 2. **Summarization** - Extract key concepts and relationships (with emphasis on distinctions and contrasts)
-3. **RDF Generation** - Structure as knowledge graph
-4. **Mermaid Rendering** - Visual flowchart diagram that renders inline
+3. **RDF Generation** - Structure as knowledge graph (canonical source of truth)
+4. **Mermaid Rendering** - Visual flowchart diagram that renders inline as Claude artifact
+
+## Key Features
+
+✨ **Concise by Default** - No verbose narration; just shows questions and final diagram
+📁 **Multiple Input Methods** - File uploads (PDFs, text), URLs, or pasted text
+🎯 **User-Chosen Focus** - Select from 3 different perspectives on why the subject matters
+🔄 **Iterative Refinement** - Request changes; RDF updates first, then visualization regenerates
+🎨 **Inline Rendering** - Mermaid diagrams display as artifacts in Claude with white backgrounds
+💾 **Descriptive Filenames** - Saves to `/tmp/[subject]-concept-map.mermaid` for reuse
+🧠 **RDF Source of Truth** - All changes flow through canonical knowledge graph
+🌗 **Dark Mode Compatible** - White container ensures legibility in any theme
+📊 **Rich Complexity** - Preserves all concepts and relationships (10+ nodes, 20+ edges)
+🔍 **Emphasis on Distinctions** - Highlights contrasts and opposing concepts for deeper understanding
 
 ## Installation
 
@@ -85,29 +98,63 @@ Claude will automatically detect when to activate the llmapper skill based on yo
 
 ### Workflow
 
-1. **Input** - Provide article via file/URL/text
+1. **Input** - Provide article via file/URL/text (silently processed)
 2. **Choose perspective** - Select from 3 focusing questions
-3. **Review summary** - Verify extracted concepts
-4. **Get visualization** - Mermaid diagram saved to `/tmp/concept-map.md`
-5. **View the map** - Open in markdown viewer or paste into Claude/GitHub
-6. **Refine** - Regenerate with different focus or try again
+3. **Processing** - Runs silently (no narration or intermediate outputs)
+4. **View diagram** - Mermaid diagram appears inline as Claude artifact
+5. **Auto-save** - Confirmation: "Saved to /tmp/[subject]-concept-map.mermaid"
+6. **Refine** (optional) - Request changes; RDF updates first, visualization regenerates
+
+### Output Modes
+
+**Concise Mode (Default)**
+- No narration or explanations
+- Only shows: focusing questions → diagram → save confirmation
+- Clean, minimal output
+- Request "verbose mode" to see intermediate stages (summary, RDF, details)
+
+**Verbose Mode (Opt-in)**
+- Shows summary after concept extraction
+- Displays RDF knowledge graph
+- Explains each processing stage
+- Detailed file save information
+- Say "verbose mode" or "show me the details" to activate
 
 ## Example Output
 
-The skill produces Mermaid flowchart diagrams saved to `/tmp/concept-map.md`:
-- **Nodes**: Purple rounded boxes containing concepts
-- **Edges**: Labeled arrows showing relationships
-- **Portable**: Can be viewed in any markdown renderer
-- **Paste-friendly**: Copy and paste into Claude, GitHub, or other platforms to see rendered diagram
-- **Rich complexity**: Shows all concepts and relationships from the knowledge graph
+### Mermaid Diagrams (Default)
 
-**Alternative output**: Interactive HTML visualization saved to `/tmp/concept-map.html` with drag, zoom, and pan features.
+The skill produces Mermaid flowchart diagrams with dual output:
 
-**Key features:**
-- Emphasizes **why the subject matters**, not just facts
-- Highlights **distinctions and contrasts** (e.g., "LLMs" vs. "AGI")
+**Visual Characteristics:**
+- **Inline artifact**: Renders immediately in Claude interface
+- **White container**: Subgraph with white background for dark/light mode compatibility
+- **White edge labels**: Readable label backgrounds regardless of theme
+- **Purple nodes**: Rounded boxes with #EDEEFA fill and #9B8FD9 borders
+- **Labeled edges**: Arrows with verb phrases showing relationships
+- **Rich complexity**: All concepts (10+) and relationships (20+) from knowledge graph
+
+**File Output:**
+- **Descriptive filename**: `to-the-lighthouse-concept-map.mermaid`
+- **Extension**: `.mermaid` (required for Claude artifact rendering)
+- **Location**: `/tmp/[subject]-concept-map.mermaid`
+- **Portable**: Works as Claude artifact, Markdown viewers, GitHub comments
+- **Reusable**: Upload to any Mermaid-compatible tool
+
+**Content Emphasis:**
+- Focuses on **why the subject matters**, not just what it is
+- Highlights **distinctions and contrasts** (e.g., "Centralized" vs. "Distributed")
 - Uses strong verbs: "threatens", "enables", "transforms", "challenges"
 - Non-deterministic - each run explores different valid perspectives
+
+### Alternative: Cytoscape HTML (Interactive)
+
+Request HTML output for interactive features:
+- Saved to `/tmp/[subject]-concept-map.html` with descriptive filename
+- Drag nodes to rearrange
+- Zoom with mouse wheel
+- Pan by clicking and dragging background
+- Open in any web browser (Chrome, Firefox, Safari)
 
 ## How It Works
 
@@ -122,13 +169,13 @@ Stage 1: Summarization (panel of experts)
     ↓
 Stage 2: RDF Knowledge Graph (source of truth)
     ↓
-Stage 3: Mermaid Visualization (saved to /tmp/concept-map.md)
+Stage 3: Mermaid Visualization
     ↓
-View in markdown viewer or paste into Claude/GitHub
+Renders as artifact in Claude + saves to /tmp/[subject]-concept-map.mermaid
 
 Alternative: Cytoscape HTML (interactive)
     ↓
-Saved to /tmp/concept-map.html → Open in browser
+Saved to /tmp/[subject]-concept-map.html → Open in browser
 ```
 
 ### Unified Input Layer
@@ -161,36 +208,71 @@ The skill uses carefully engineered prompts in `prompts/`:
 
 These prompts contain extensive rules developed through iteration to prevent LLM failure modes.
 
-### Key Features
+### Technical Features
+
+**Concise Output Mode**
+- Silent processing - no narration or "thinking out loud"
+- Shows only: focusing questions → diagram → save confirmation
+- Optional verbose mode for seeing intermediate stages
+- Clean, minimal user experience
 
 **Distinction & Contrast Emphasis**
 - Actively identifies opposing concepts (e.g., "Specialized Tools" vs. "General-Purpose Agents")
 - Highlights alternatives and before/after states
-- **Understanding comes from distinctions**
+- Understanding comes from distinctions, not just definitions
 
 **User-Chosen Perspective**
-- 3 focusing questions explore different angles
-- Each leads to different concept maps
+- 3 dynamically generated focusing questions explore different angles
+- Each leads to different concept maps from the same content
 - Explores *why* the subject matters from various viewpoints
+- Non-deterministic by design - encourages exploration
 
 **RDF as Source of Truth**
 - Knowledge graph is canonical representation
-- Can be exported, imported, queried
-- Visualizations derived from RDF
+- All user-requested changes applied to RDF first
+- Visualization regenerated from updated RDF
+- Enables reliable iterative refinement
+- Consistent state management across multiple edits
+- Visualizations always derived from RDF (never edited directly)
+
+**White Background Container**
+- Mermaid diagrams wrapped in white subgraph
+- White edge label backgrounds
+- Ensures legibility in both dark and light modes
+- Professional appearance across all viewing contexts
 
 ## Important Notes
 
-### Output Format
+### Output Format Details
 
-**Default (Mermaid):** The visualization is saved to `/tmp/concept-map.md`. You can:
-- Open it in any markdown viewer (VS Code, Typora, Obsidian, etc.)
-- Paste the contents into Claude to see it rendered inline
-- Paste into GitHub comments/issues to share
-- Use with any tool that renders Mermaid diagrams
+**Mermaid (Default):**
+- **Inline rendering**: Appears as Claude artifact immediately
+- **Saved file**: `/tmp/[subject]-concept-map.mermaid`
+- **Extension**: `.mermaid` required for Claude artifact support
+- **Format**: Raw Mermaid code with init directive and subgraph container
 
-**Alternative (Cytoscape HTML):** If you request HTML output for interactive features, the visualization is saved to `/tmp/concept-map.html`. Open this file in any web browser (Chrome, Firefox, Safari, etc.) for full interactivity with drag, zoom, and pan features.
+Filename examples:
+- "To the Lighthouse" → `to-the-lighthouse-concept-map.mermaid`
+- "Artificial Intelligence" → `artificial-intelligence-concept-map.mermaid`
+- "Climate Change Impact" → `climate-change-impact-concept-map.mermaid`
 
-**Session-persistent:** Both output files have fixed names and will be overwritten if you generate a new map in the same session. This allows for iterative refinement.
+File usage:
+- Open in any Markdown viewer (VS Code, Typora, Obsidian)
+- Paste into GitHub comments/issues for inline rendering
+- Upload to Mermaid Live Editor for editing
+- Share with descriptive filename instead of generic name
+
+**Cytoscape HTML (Alternative):**
+- Request with: "use Cytoscape" or "generate HTML version"
+- Saved to: `/tmp/[subject]-concept-map.html`
+- Open in any web browser (Chrome, Firefox, Safari)
+- Full interactivity: drag nodes, zoom, pan
+
+**Iterative Refinement:**
+- Files use article subject as filename
+- Regenerating overwrites previous file
+- Enables iterative refinement workflow
+- Each edit updates RDF first, then visualization
 
 ### Wikipedia Access
 
@@ -252,20 +334,55 @@ You could add other formats like D3.js or custom SVG output.
 - The skill validates WebFetch output and will notify you
 
 ### Can't See the Visualization
-- **Mermaid (default):** Check `/tmp/concept-map.md`
-- **How to view:** Open in markdown viewer or paste contents into Claude/GitHub
-- **If you requested HTML:** Check `/tmp/concept-map.html`
-- **How to open HTML:** `open /tmp/concept-map.html` (macOS) or open in any browser
+- **Mermaid (default):** Should display inline in Claude as artifact automatically
+  - Diagram appears in the conversation as a rendered flowchart
+  - If not visible, check saved file: `/tmp/[subject]-concept-map.mermaid`
+  - List files: `ls /tmp/*-concept-map.mermaid`
+  - Open file in Markdown viewer to see it rendered
+- **If you requested HTML:** Check `/tmp/[subject]-concept-map.html`
+  - List files: `ls /tmp/*-concept-map.html`
+  - Open with: `open /tmp/[filename]` (macOS) or drag to browser
 
 ### Missing Expected Concepts
 - Try regenerating (non-deterministic by design)
 - Try a different focusing question
+- Request specific additions (e.g., "add a node about X")
 - Adjust concept count in `summarize.md`
 
 ### Map Doesn't Answer Focusing Question
 - The updated prompts emphasize this
 - Should include application concepts, limitations, distinctions
 - Report as issue if consistently poor
+
+### Making Changes After Initial Generation
+
+**RDF-First Workflow:**
+When you request changes, the skill follows this process:
+1. Retrieves stored RDF knowledge graph
+2. Applies changes to RDF (add/remove/modify nodes or relationships)
+3. Stores updated RDF
+4. Regenerates visualization from updated RDF
+5. Outputs updated diagram with brief confirmation: "Updated."
+
+This ensures consistency and enables multiple iterative refinements.
+
+**Example Change Requests:**
+- "Add a node about machine learning ethics"
+- "Remove the relationship between X and Y"
+- "Add a connection showing how A enables B"
+- "Change the label on the 'AI' node to 'Artificial Intelligence'"
+- "Show more emphasis on the ethical implications"
+- "Remove nodes that aren't central to the focusing question"
+
+**Concise Mode (Default):**
+- Changes processed silently
+- Updated diagram appears with no preamble
+- Brief confirmation: "Updated."
+
+**Verbose Mode:**
+- Shows which RDF triples were modified
+- Explains what changed in the visualization
+- Detailed confirmation of save location
 
 ## Project Structure
 
@@ -298,10 +415,21 @@ llmapper-skill/
 | Distinctions | Implicit | Explicit emphasis |
 | Rendering | External file | Saved file (can paste for inline) |
 
+## Recent Updates
+
+### Completed Features
+- ✅ **Mermaid visualization** - Default format with inline rendering
+- ✅ **Concise mode** - Silent processing with minimal output
+- ✅ **White background container** - Dark/light mode compatibility
+- ✅ **White edge labels** - Readable in all themes
+- ✅ **Descriptive filenames** - Subject-based naming instead of generic
+- ✅ **RDF-first workflow** - Iterative refinement through canonical source
+- ✅ **Dual output** - Inline artifact + saved file
+- ✅ **File extension** - `.mermaid` for Claude artifact rendering
+
 ## Future Enhancements
 
 ### High Priority
-- [x] Mermaid visualization format (completed)
 - [ ] Automatic fallback to file upload when WebFetch blocked
 - [ ] User preference for output format (Mermaid, Cytoscape, Graphviz)
 - [ ] Custom output directory option for files (instead of fixed `/tmp/` directory)
@@ -312,20 +440,23 @@ llmapper-skill/
 - [ ] Academic paper parsing (citations)
 
 ### Advanced Features
-- [ ] Edit RDF and regenerate visualization
-- [ ] Export to various formats (JSON, GraphML)
+- [x] Edit RDF and regenerate visualization (completed via RDF-first workflow)
+- [ ] Export RDF to file for external use
+- [ ] Import existing RDF to generate new visualizations
 - [ ] Merge/compare multiple maps
 - [ ] Confidence scores for relationships
 - [ ] Temporal maps (show evolution over time)
+- [ ] Visual diff between concept map versions
 
 ## Known Limitations
 
-1. **Mermaid layout constraints** - Mermaid automatic layout may not be optimal for very large graphs (20+ nodes)
-2. **File must be viewed separately** - Output saved to `/tmp/concept-map.md`, requires separate viewer or paste action
-3. **Wikipedia may block WebFetch** - use file upload instead
-4. **Non-deterministic output** - different runs produce different maps (by design)
-5. **Limited to ~15k chars** - very long articles may be truncated
-6. **Session file persistence** - Output files overwritten on each run (feature for iterative refinement)
+1. **Mermaid layout constraints** - Automatic layout may not be optimal for very large graphs (30+ nodes); consider requesting Cytoscape HTML for complex graphs
+2. **Inline rendering platform-specific** - Mermaid displays inline in Claude web/desktop as artifacts; saved file can be used in other tools
+3. **Wikipedia may block WebFetch** - Use file upload (PDF or text) instead when sites block access
+4. **Non-deterministic output** - Different runs produce different maps from same content (by design - encourages exploration)
+5. **Article length limits** - Very long articles may be truncated; consider splitting or summarizing first
+6. **Fixed output location** - Files save to `/tmp/` directory; future versions may support custom paths
+7. **Session file persistence** - Regenerating a map for same subject overwrites previous file (feature for iterative refinement)
 
 ## Credits
 
@@ -335,8 +466,9 @@ Prompts developed through extensive iteration and testing.
 
 Uses:
 - "Panel of experts" prompt engineering pattern
-- RDF as canonical knowledge representation
-- Mermaid for inline visualization (default)
+- RDF as canonical knowledge representation (source of truth)
+- RDF-first workflow for iterative refinement
+- Mermaid for portable visualization (default)
 - Cytoscape.js for interactive HTML visualization (alternative)
 - Distinction/contrast emphasis for deeper understanding
 

@@ -25,7 +25,15 @@ You will create a complete, standalone HTML file with:
 
 The HTML must be complete and ready to use - no placeholders, no incomplete sections.
 
-**IMPORTANT:** You must SAVE the HTML file to `/tmp/concept-map.html` using the Write tool. This allows the user to open it in their browser for full interactivity. After saving, inform the user of the file location.
+**IMPORTANT:** You must SAVE the HTML file using a descriptive filename:
+1. Extract the main subject from the RDF knowledge graph (the central concept)
+2. Create a filename: convert to lowercase, replace spaces with hyphens, append "-concept-map.html"
+3. Examples:
+   - "To the Lighthouse" → "/tmp/to-the-lighthouse-concept-map.html"
+   - "Artificial Intelligence" → "/tmp/artificial-intelligence-concept-map.html"
+4. Keep filename short (2-5 words from the title)
+5. SAVE to `/tmp/[generated-filename]` using the Write tool
+6. After saving, inform the user of the exact file location and how to open it
 
 # CONTEXT
 
@@ -202,11 +210,16 @@ const elements = [
 - Generate the complete HTML file (self-contained, no placeholders)
 - Replace [TITLE] with the main subject of the knowledge graph
 - Ensure all JavaScript syntax is valid (commas, quotes, brackets)
-- SAVE the HTML to `/tmp/concept-map.html` using the Write tool
+- Generate a descriptive filename from the main subject:
+  - Extract central concept from knowledge graph
+  - Convert to lowercase, replace spaces with hyphens
+  - Append "-concept-map.html"
+  - Example: "To the Lighthouse" → "to-the-lighthouse-concept-map.html"
+- SAVE the HTML to `/tmp/[generated-filename]` using the Write tool
 - DO NOT output the HTML content in chat - only save to file
 - After saving, inform the user:
-  - Where the file was saved
-  - How to open it (e.g., "Open `/tmp/concept-map.html` in your browser")
+  - The exact filename where it was saved
+  - How to open it (e.g., "Open `/tmp/to-the-lighthouse-concept-map.html` in your browser")
   - That it's interactive (drag nodes, zoom, pan)
 
 This is the RDF code you will convert to an interactive Cytoscape visualization:

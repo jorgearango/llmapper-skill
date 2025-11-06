@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LLMapper is a Claude skill that transforms articles into concept maps through a four-stage LLM pipeline: Focusing Questions (user choice) → Summarization → RDF Knowledge Graph → Mermaid Visualization. The skill focuses on extracting not just what a subject IS, but WHY IT MATTERS. Accepts multiple input formats (file uploads, URLs, pasted text) and runs in Claude Code, Claude Desktop, and Claude on the web. File uploads (PDFs, text files, etc.) are the most reliable input method. Mermaid diagrams are saved to `/tmp/concept-map.md` and can be viewed in any markdown renderer or pasted into Claude/GitHub for inline rendering.
+LLMapper is a Claude skill that transforms articles into concept maps through a four-stage LLM pipeline: Focusing Questions (user choice) → Summarization → RDF Knowledge Graph → Mermaid Visualization. The skill focuses on extracting not just what a subject IS, but WHY IT MATTERS. Accepts multiple input formats (file uploads, URLs, pasted text) and runs in Claude Code, Claude Desktop, and Claude on the web. File uploads (PDFs, text files, etc.) are the most reliable input method. Mermaid diagrams are saved to `/tmp/[subject]-concept-map.mermaid` and render inline as artifacts.
+
+**Output Mode:** By default, the skill operates in **concise mode** - only showing focusing questions and the final diagram. User can request "verbose mode" to see intermediate outputs (summary, RDF, detailed explanations).
 
 ## Architecture
 
@@ -31,16 +33,20 @@ The skill processes articles through four sequential stages, each with its own p
 
 4. **Stage 3: Mermaid Visualization (Default)** (`prompts/mermaid.md`)
    - Transforms RDF into Mermaid flowchart diagram
-   - Styled as rounded purple boxes with labeled arrows (matches original design)
-   - Saves to `/tmp/concept-map.md` for viewing in any markdown renderer
+   - Styled as rounded purple boxes with labeled arrows on white background
+   - **Dual output**: Displays inline as artifact AND saves to `/tmp/[subject]-concept-map.mermaid`
+   - Uses .mermaid extension (required for Claude artifact rendering)
+   - Generates descriptive filename from article subject
+   - Includes white background theme for legibility
    - Preserves full complexity and richness of knowledge graph
-   - Output: Markdown file with Mermaid diagram
+   - Output: Diagram rendered as artifact + .mermaid file with meaningful name for reuse
 
    **Alternative: Cytoscape Visualization** (`prompts/cytoscape.md`)
    - For Claude Code users or when HTML output is preferred
    - Interactive HTML visualization using Cytoscape.js
    - Features: drag nodes, zoom, pan
-   - Output: Complete HTML file saved to `/tmp/concept-map.html`
+   - Generates descriptive filename from article subject
+   - Output: Complete HTML file saved to `/tmp/[subject]-concept-map.html`
    - User opens file in browser for full interactivity
 
    **Historical Reference**: `prompts/dot.md` preserved for Graphviz DOT format
@@ -88,15 +94,25 @@ The RDF knowledge graph (Stage 2) is the **canonical representation** of the con
 - **Visualizations are derived from RDF**, not the other way around
 - Multiple visualization formats can be generated from the same RDF
 - RDF can be exported, imported, queried, and extended
-- Future features will allow users to edit and augment the knowledge graph
-- The skill preserves RDF between stages for this reason
+- The skill preserves RDF throughout the conversation for iterative refinement
+- **ALL user-requested changes must be applied to the RDF first, then visualizations regenerated**
 
 This architecture enables:
 - Switching between visualization formats (Mermaid, Cytoscape, Graphviz, etc.)
 - Editing the knowledge graph independently of visualization
 - Merging multiple knowledge graphs
 - Querying the graph with SPARQL or similar tools
-- Universal rendering across all Claude interfaces via Mermaid
+- Reliable iterative refinement through RDF-first workflow
+
+**CRITICAL WORKFLOW RULE:**
+When users request changes after initial generation:
+1. Never modify visualization code directly
+2. Always retrieve the stored RDF
+3. Apply changes to the RDF knowledge graph
+4. Store the updated RDF
+5. Regenerate visualization from the updated RDF
+
+This ensures consistency and reliability across multiple refinements.
 
 ## Development Commands
 
@@ -132,38 +148,99 @@ ls -la ~/.claude/skills/llmapper/SKILL.md
 # Should start with: @prefix ex: <http://example.org/ns#> .
 
 # Validate Mermaid output (Stage 3 - Default)
-# Expected: Markdown file saved to /tmp/concept-map.md
-# Should contain: ```mermaid code block
-# Should start with: flowchart TD or flowchart LR
-# Should have: classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9...
-# Should include all nodes with :::conceptNode class
-# Should have all edges with -->|label| syntax
-# Check the file: cat /tmp/concept-map.md
-# Can paste contents into Claude or GitHub to verify rendering
+# Expected: TWO outputs
+#   1. Diagram displayed inline in chat as artifact (should render with white background)
+#   2. Raw Mermaid file saved to /tmp/[subject]-concept-map.mermaid (NO code blocks)
+# Filename should be descriptive based on article subject
+# Example: "To the Lighthouse" → to-the-lighthouse-concept-map.mermaid
+# CRITICAL: File must use .mermaid extension for Claude artifact rendering
+# Diagram should:
+#   - Start with: %%{init: {'theme':'base', 'themeVariables': {...}}}%%
+#   - Include white background configuration
+#   - Use: flowchart TD or flowchart LR
+#   - Have: classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9...
+#   - Include all nodes with :::conceptNode class
+#   - Have all edges with -->|label| syntax
+# Chat output: wrapped in ```mermaid code block
+# File output: raw Mermaid code (NO backticks)
+# Check inline rendering as artifact in Claude interface
+# Verify file: ls /tmp/*-concept-map.mermaid
 
 # Validate Cytoscape HTML output (Stage 3 - Alternative)
-# Expected: Complete HTML file saved to /tmp/concept-map.html
+# Expected: Complete HTML file saved to /tmp/[subject]-concept-map.html
+# Filename should be descriptive based on article subject
 # Should start with: <!DOCTYPE html>
 # Should include Cytoscape CDN: <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
 # Should have valid JavaScript with elements array
-# Check the file: open /tmp/concept-map.html
+# Check the file: ls /tmp/*-concept-map.html && open /tmp/[filename]
 ```
+
+## RDF Storage and Management
+
+### Storing RDF During Conversation
+
+The RDF knowledge graph must persist throughout the conversation to enable iterative refinement:
+
+**After generating RDF (Stage 2):**
+```
+Store the RDF output in conversation context
+This can be done by:
+- Keeping it in working memory as a variable
+- Including it in subsequent prompts as context
+- Referencing it explicitly when needed
+```
+
+**When user requests changes:**
+```
+1. Retrieve the RDF from storage
+2. Understand the user's change request
+3. Modify the RDF accordingly:
+   - Adding new triples for new concepts/relationships
+   - Removing triples for deletions
+   - Modifying subjects/predicates/objects for edits
+4. Validate the updated RDF (check syntax, no self-references, etc.)
+5. Store the updated RDF (replacing the old version)
+6. Pass the updated RDF to the visualization prompt
+```
+
+**Example change workflow:**
+```
+User: "Add a relationship between AI and job displacement"
+
+Step 1: Retrieve current RDF
+Step 2: Analyze what exists (AI node? job displacement node?)
+Step 3: Add necessary triples:
+   - If nodes don't exist, create them
+   - Add relationship triple connecting them
+Step 4: Store updated RDF
+Step 5: Regenerate Mermaid/Cytoscape from updated RDF
+```
+
+### Why This Matters
+
+- **Consistency**: Visualization always matches the knowledge graph
+- **Traceability**: Changes are applied systematically
+- **Extensibility**: Can add features like RDF export, diff, merge
+- **Reliability**: Less likely to introduce visualization syntax errors
+- **Future-proof**: Enables advanced features (SPARQL queries, graph algorithms)
 
 ## Common Gotchas
 
 ### Output Format Violations
 
 **For Mermaid (Default):**
-If the visualization doesn't render when pasted, check that:
+If the visualization doesn't render inline, check that:
 - Stage 2 RDF has NO markdown code blocks (```), backticks, or comments
-- Stage 3 Mermaid was saved to `/tmp/concept-map.md` (not output to chat)
-- File contains a proper code block: ```mermaid
-- Mermaid syntax is valid (no syntax errors)
+- Stage 3 Mermaid uses DUAL output:
+  - First outputs diagram directly in chat (for inline rendering)
+  - Then saves to `/tmp/concept-map.md` (for persistence)
+- Diagram syntax is valid Mermaid (no syntax errors)
+- Starts with ```mermaid and ends with ```
 - All nodes have the :::conceptNode class applied
 - Node IDs are alphanumeric (no spaces, only underscores allowed)
 - Edge labels use proper |label| syntax
 - classDef is defined at the top with correct colors
-- User was informed where to find the file
+- User was informed diagram is displayed above AND saved to file
 
 **For Cytoscape HTML (Alternative):**
 If the visualization doesn't render, check that:
@@ -263,11 +340,12 @@ The skill automatically detects input type:
 
 ## Skill Invocation Flow
 
+**CONCISE MODE (default):**
 ```
 User provides input (file upload, URL, or pasted text)
     ↓
 STEP 0: Input Detection and Acquisition
-    - Detect input type (file path, URL, or plain text)
+    - Detect input type silently (file path, URL, or plain text)
     - FILE: Use Read tool to extract text
     - URL: Use WebFetch, validate full text vs. summary
            If summary detected → offer file upload alternative
@@ -277,18 +355,44 @@ Apply prompts/focusing-questions.md → Generate 3 focusing questions
     ↓
 AskUserQuestion → User selects preferred perspective
     ↓
-Apply prompts/summarize.md with chosen question → Show summary to user
+Apply prompts/summarize.md with chosen question (silently - no output shown)
     ↓
-Apply prompts/rdf.md → Generate RDF (source of truth, stored)
+Apply prompts/rdf.md → Generate RDF (source of truth, stored internally)
     ↓
-Apply prompts/mermaid.md → Save Mermaid diagram to /tmp/concept-map.md
+Apply prompts/mermaid.md → Output diagram inline + save to /tmp/[subject]-concept-map.mermaid
     ↓
-Inform user where to find the file and how to use it
+Brief confirmation: "Saved to /tmp/[filename]"
     ↓
-Offer refinement options (including choosing different focusing question)
+User can request changes or ask for verbose mode
+    ↓
+IF USER REQUESTS CHANGES:
+    ↓
+    Retrieve stored RDF silently
+    ↓
+    Apply changes to RDF (add/remove/modify nodes or relationships)
+    ↓
+    Store updated RDF (replace previous)
+    ↓
+    Regenerate visualization from updated RDF
+    ↓
+    Output updated diagram inline + save to /tmp/[same-filename]
+    ↓
+    Brief confirmation: "Updated and saved."
+```
 
-ALTERNATIVE FLOW (for interactive HTML preference):
-    Apply prompts/cytoscape.md → Save HTML to /tmp/concept-map.html
+**VERBOSE MODE (when user requests):**
+```
+Same flow as above, but:
+    - Show summary output after Stage 1
+    - Show RDF output after Stage 2
+    - Provide detailed explanations at each step
+    - Detailed file save information
+    - Offer refinement options explicitly
+```
+
+**ALTERNATIVE FLOW (for interactive HTML preference):**
+```
+    Apply prompts/cytoscape.md → Save HTML to /tmp/[subject]-concept-map.html
     ↓
     Inform user where to find the file and how to open it
 ```
