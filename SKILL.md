@@ -1,6 +1,6 @@
 ---
 name: llmapper
-description: Generate concept maps from articles (files, URLs, or text) using a multi-stage LLM pipeline (user-chosen focus → summarize → RDF → Cytoscape)
+description: Generate concept maps from articles (files, URLs, or text) using a multi-stage LLM pipeline (user-chosen focus → summarize → RDF → Mermaid)
 ---
 
 # LLMapper - AI-Generated Concept Maps
@@ -66,12 +66,14 @@ Convert the concepts and relationships into RDF triples (Terse RDF Triple Langua
 
 **Expected output**: Clean RDF code (no markdown, no comments, just RDF)
 
-### Stage 3: Interactive Cytoscape Visualization
-Transform the RDF graph into an interactive HTML visualization using Cytoscape.js. The output is an interactive concept map with styled nodes (rounded boxes, purple fill) and labeled edges that users can drag, zoom, and explore.
+### Stage 3: Mermaid Visualization (Default)
+Transform the RDF graph into a Mermaid flowchart diagram saved as a markdown file. The output is a rich concept map with styled nodes (rounded boxes, purple fill) and labeled edges showing all concepts and relationships.
 
-**Prompt location**: `prompts/cytoscape.md`
+**Prompt location**: `prompts/mermaid.md`
 
-**Expected output**: Complete HTML file saved to `/tmp/concept-map.html` that can be opened in any browser
+**Expected output**: Markdown file with Mermaid diagram saved to `/tmp/concept-map.md`
+
+**Alternative**: For interactive HTML with drag/zoom/pan features, you can generate a Cytoscape visualization instead using `prompts/cytoscape.md` which saves to `/tmp/concept-map.html`
 
 ## How to Execute
 
@@ -134,8 +136,14 @@ Apply prompts/rdf.md to the concepts/relationships from step 3
 Store the RDF output (you'll need it for step 5)
 ```
 
-### Step 5: Generate Cytoscape Visualization
+### Step 5: Generate Mermaid Visualization
 ```
+Apply prompts/mermaid.md to the RDF from step 4
+Save the Mermaid diagram to /tmp/concept-map.md
+The diagram will show all concepts and relationships with styled nodes and edges
+Inform the user where the file was saved and how to use it
+
+ALTERNATIVE (if user requests interactive HTML):
 Apply prompts/cytoscape.md to the RDF from step 4
 Save the complete HTML file to /tmp/concept-map.html
 Inform the user where the file was saved and how to open it
@@ -143,8 +151,17 @@ Inform the user where the file was saved and how to open it
 
 ### Step 6: Present the Result
 ```
+Confirm the Mermaid file was saved to /tmp/concept-map.md
+Explain how to use it:
+  - Can be viewed in any markdown viewer
+  - Can be pasted into Claude, GitHub, or other platforms that render Mermaid
+  - Contains all concepts and relationships from the knowledge graph
+
+ALTERNATIVE (for Cytoscape HTML output):
 Confirm the file was saved to /tmp/concept-map.html
 Provide instructions to open in browser
+Note the interactive features (drag, zoom, pan)
+
 Offer to refine or regenerate with different focus (including choosing a different focusing question)
 ```
 
@@ -160,7 +177,7 @@ Each prompt file contains detailed instructions. When applying a prompt:
 ### Output Format Requirements
 - **Stage 1**: Markdown with labeled sections
 - **Stage 2**: Pure RDF code, no markdown blocks, no backticks, no comments
-- **Stage 3**: Complete HTML file saved to `/tmp/concept-map.html` (not output to chat)
+- **Stage 3**: Markdown file with Mermaid diagram saved to `/tmp/concept-map.md` (default) OR Complete HTML file saved to `/tmp/concept-map.html` for Cytoscape alternative
 
 ### Critical Rules Across All Stages
 - No camelCase, snake_case, kebab-case, or PascalCase in labels
@@ -198,12 +215,13 @@ User: [Selects one of the three options]
 [Apply summarization with chosen question]
 [Show summary]
 [Generate RDF internally]
-[Save HTML visualization to /tmp/concept-map.html]
+[Generate Mermaid visualization from RDF]
+[Save to /tmp/concept-map.md]
 
-Your concept map has been saved to /tmp/concept-map.html
-Open this file in your browser to view the interactive visualization.
+Your concept map has been saved to /tmp/concept-map.md
 This map focuses on: [the chosen focusing question perspective]
-You can drag nodes, zoom with scroll, and pan by dragging the background.
+You can view the diagram by opening the file in any markdown viewer,
+or paste it into Claude/GitHub to see it rendered.
 ```
 
 ### Refinement
@@ -238,9 +256,9 @@ User: [uploads research-paper.pdf]
 You: I'll create a concept map from this PDF using the LLMapper pipeline.
 [Reads PDF, generates questions, user selects focus, creates map]
 
-Your concept map has been saved to /tmp/concept-map.html
-Open this file in your browser to view the interactive visualization.
-The map focuses on: [the perspective you chose from the three options]
+Your concept map has been saved to /tmp/concept-map.md
+The map focuses on: [the perspective you chose]
+Open the file in any markdown viewer or paste it into Claude/GitHub to view.
 ```
 
 **Example 2: URL (with validation)**
@@ -268,11 +286,12 @@ You: I'll create a concept map from this article...
 
 ## Technical Context
 
-- **Primary target:** Claude Code (CLI) and Claude Desktop
+- **Primary target:** Claude Code (CLI), Claude Desktop, and Claude on the web
 - **Primary input method:** File uploads (PDFs, text files, etc.) - most reliable
 - **Secondary input method:** URLs (with validation and fallback)
 - **Fallback:** Pasted text
-- **Output:** Interactive HTML visualizations saved to `/tmp/concept-map.html` (using Cytoscape.js loaded from CDN)
+- **Default output:** Mermaid diagrams saved to `/tmp/concept-map.md` (can be viewed in any markdown viewer or pasted into Claude/GitHub)
+- **Alternative output:** Interactive HTML visualizations saved to `/tmp/concept-map.html` (using Cytoscape.js loaded from CDN)
 - Original LLMapper is a bash script using external tools (llm, Graphviz, ImageMagick)
 - This skill replicates and extends that pipeline using Claude's native capabilities
 - RDF serves as the canonical "source of truth" for the knowledge graph

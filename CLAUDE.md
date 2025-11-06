@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LLMapper is a Claude skill that transforms articles into interactive concept maps through a four-stage LLM pipeline: Focusing Questions (user choice) → Summarization → RDF Knowledge Graph → Cytoscape Interactive Visualization. The skill focuses on extracting not just what a subject IS, but WHY IT MATTERS. Accepts multiple input formats (file uploads, URLs, pasted text) and runs in both Claude Code and Claude Desktop. File uploads (PDFs, text files, etc.) are the most reliable input method.
+LLMapper is a Claude skill that transforms articles into concept maps through a four-stage LLM pipeline: Focusing Questions (user choice) → Summarization → RDF Knowledge Graph → Mermaid Visualization. The skill focuses on extracting not just what a subject IS, but WHY IT MATTERS. Accepts multiple input formats (file uploads, URLs, pasted text) and runs in Claude Code, Claude Desktop, and Claude on the web. File uploads (PDFs, text files, etc.) are the most reliable input method. Mermaid diagrams are saved to `/tmp/concept-map.md` and can be viewed in any markdown renderer or pasted into Claude/GitHub for inline rendering.
 
 ## Architecture
 
@@ -29,13 +29,21 @@ The skill processes articles through four sequential stages, each with its own p
    - Creates structured knowledge graph with subjects, predicates, objects
    - Output: Pure RDF code (no markdown, no comments, no backticks)
 
-4. **Stage 3: Cytoscape Visualization** (`prompts/cytoscape.md`)
-   - Transforms RDF into interactive HTML visualization using Cytoscape.js
-   - Styled as rounded purple boxes with labeled arrows
-   - Interactive: drag nodes, zoom, pan
+4. **Stage 3: Mermaid Visualization (Default)** (`prompts/mermaid.md`)
+   - Transforms RDF into Mermaid flowchart diagram
+   - Styled as rounded purple boxes with labeled arrows (matches original design)
+   - Saves to `/tmp/concept-map.md` for viewing in any markdown renderer
+   - Preserves full complexity and richness of knowledge graph
+   - Output: Markdown file with Mermaid diagram
+
+   **Alternative: Cytoscape Visualization** (`prompts/cytoscape.md`)
+   - For Claude Code users or when HTML output is preferred
+   - Interactive HTML visualization using Cytoscape.js
+   - Features: drag nodes, zoom, pan
    - Output: Complete HTML file saved to `/tmp/concept-map.html`
    - User opens file in browser for full interactivity
-   - Note: `prompts/dot.md` is preserved for historical reference but not actively used
+
+   **Historical Reference**: `prompts/dot.md` preserved for Graphviz DOT format
 
 ### File Structure
 
@@ -47,7 +55,8 @@ llmapper-skill/
 │   ├── focusing-questions.md  # Stage 0: Generate 3 perspectives for user choice
 │   ├── summarize.md        # Stage 1: Concept extraction with "panel of experts"
 │   ├── rdf.md              # Stage 2: Knowledge graph generation (source of truth)
-│   ├── cytoscape.md        # Stage 3: Interactive visualization (active)
+│   ├── mermaid.md          # Stage 3: Mermaid visualization (default, renders inline)
+│   ├── cytoscape.md        # Stage 3: Cytoscape HTML (alternative for Claude Code)
 │   └── dot.md              # Stage 3: Graphviz DOT (preserved for reference)
 ├── CLAUDE.md               # Developer documentation (this file)
 ├── README.md               # User-facing documentation
@@ -83,10 +92,11 @@ The RDF knowledge graph (Stage 2) is the **canonical representation** of the con
 - The skill preserves RDF between stages for this reason
 
 This architecture enables:
-- Switching between visualization formats (Cytoscape, Graphviz, etc.)
+- Switching between visualization formats (Mermaid, Cytoscape, Graphviz, etc.)
 - Editing the knowledge graph independently of visualization
 - Merging multiple knowledge graphs
 - Querying the graph with SPARQL or similar tools
+- Universal rendering across all Claude interfaces via Mermaid
 
 ## Development Commands
 
@@ -121,7 +131,17 @@ ls -la ~/.claude/skills/llmapper/SKILL.md
 # Expected: Pure RDF code, no markdown blocks, no comments
 # Should start with: @prefix ex: <http://example.org/ns#> .
 
-# Validate HTML output (Stage 3)
+# Validate Mermaid output (Stage 3 - Default)
+# Expected: Markdown file saved to /tmp/concept-map.md
+# Should contain: ```mermaid code block
+# Should start with: flowchart TD or flowchart LR
+# Should have: classDef conceptNode fill:#EDEEFA,stroke:#9B8FD9...
+# Should include all nodes with :::conceptNode class
+# Should have all edges with -->|label| syntax
+# Check the file: cat /tmp/concept-map.md
+# Can paste contents into Claude or GitHub to verify rendering
+
+# Validate Cytoscape HTML output (Stage 3 - Alternative)
 # Expected: Complete HTML file saved to /tmp/concept-map.html
 # Should start with: <!DOCTYPE html>
 # Should include Cytoscape CDN: <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
@@ -133,6 +153,19 @@ ls -la ~/.claude/skills/llmapper/SKILL.md
 
 ### Output Format Violations
 
+**For Mermaid (Default):**
+If the visualization doesn't render when pasted, check that:
+- Stage 2 RDF has NO markdown code blocks (```), backticks, or comments
+- Stage 3 Mermaid was saved to `/tmp/concept-map.md` (not output to chat)
+- File contains a proper code block: ```mermaid
+- Mermaid syntax is valid (no syntax errors)
+- All nodes have the :::conceptNode class applied
+- Node IDs are alphanumeric (no spaces, only underscores allowed)
+- Edge labels use proper |label| syntax
+- classDef is defined at the top with correct colors
+- User was informed where to find the file
+
+**For Cytoscape HTML (Alternative):**
 If the visualization doesn't render, check that:
 - Stage 2 RDF has NO markdown code blocks (```), backticks, or comments
 - Stage 3 HTML was saved to `/tmp/concept-map.html` (not output to chat)
@@ -175,6 +208,15 @@ Then update line 53:
 
 ### Changing Visual Style
 
+**For Mermaid (Default):**
+Edit `prompts/mermaid.md` classDef section to modify:
+- Node fill color: `fill:#EDEEFA` → `fill:#yourcolor`
+- Border color: `stroke:#9B8FD9` → `stroke:#yourcolor`
+- Border width: `stroke-width:2px` → `stroke-width:3px`
+- Font: `font-family:Arial` → `font-family:Helvetica`
+- Layout direction: `flowchart TD` → `flowchart LR` (top-down vs left-right)
+
+**For Cytoscape HTML (Alternative):**
 Edit `prompts/cytoscape.md` HTML template to modify:
 - Node colors: `'background-color': '#EDEEFA'` → `'background-color': '#yourcolor'`
 - Border colors: `'border-color': '#9B8FD9'` → `'border-color': '#yourcolor'`
@@ -239,11 +281,16 @@ Apply prompts/summarize.md with chosen question → Show summary to user
     ↓
 Apply prompts/rdf.md → Generate RDF (source of truth, stored)
     ↓
-Apply prompts/cytoscape.md → Save HTML to /tmp/concept-map.html
+Apply prompts/mermaid.md → Save Mermaid diagram to /tmp/concept-map.md
     ↓
-Inform user where to find the file and how to open it
+Inform user where to find the file and how to use it
     ↓
 Offer refinement options (including choosing different focusing question)
+
+ALTERNATIVE FLOW (for interactive HTML preference):
+    Apply prompts/cytoscape.md → Save HTML to /tmp/concept-map.html
+    ↓
+    Inform user where to find the file and how to open it
 ```
 
 ## Related Documentation
@@ -252,6 +299,8 @@ Offer refinement options (including choosing different focusing question)
 - User documentation: `README.md`
 - Developer documentation: `CLAUDE.md` (this file)
 - Original LLMapper bash tool: https://github.com/yourusername/llmapper (TBD)
+- Mermaid Documentation: https://mermaid.js.org/intro/
+- Mermaid Flowchart Syntax: https://mermaid.js.org/syntax/flowchart.html
 - Graphviz DOT language: https://graphviz.org/doc/info/lang.html
 - RDF Primer: https://www.w3.org/TR/rdf11-primer/
 - Claude Code Skills: https://docs.claude.com/en/docs/claude-code/skills

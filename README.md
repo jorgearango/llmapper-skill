@@ -1,6 +1,6 @@
 # LLMapper Skill
 
-A Claude skill that generates concept maps from articles using a multi-stage LLM pipeline. Works with **file uploads** (PDFs, text files), **URLs**, and **pasted text**.
+A Claude skill that generates concept maps from articles using a multi-stage LLM pipeline. Works with **file uploads** (PDFs, text files), **URLs**, and **pasted text**. Saves Mermaid diagrams that can be viewed in any markdown renderer or pasted into Claude/GitHub.
 
 ## Overview
 
@@ -12,7 +12,7 @@ The skill processes content through four stages:
 1. **Focusing Questions** - Generate 3 perspectives, user chooses one
 2. **Summarization** - Extract key concepts and relationships (with emphasis on distinctions and contrasts)
 3. **RDF Generation** - Structure as knowledge graph
-4. **Cytoscape Rendering** - Interactive HTML visualization
+4. **Mermaid Rendering** - Visual flowchart diagram that renders inline
 
 ## Installation
 
@@ -88,17 +88,20 @@ Claude will automatically detect when to activate the llmapper skill based on yo
 1. **Input** - Provide article via file/URL/text
 2. **Choose perspective** - Select from 3 focusing questions
 3. **Review summary** - Verify extracted concepts
-4. **Get visualization** - HTML file saved to `/tmp/concept-map.html`
-5. **Open in browser** - View interactive concept map with full interactivity
+4. **Get visualization** - Mermaid diagram saved to `/tmp/concept-map.md`
+5. **View the map** - Open in markdown viewer or paste into Claude/GitHub
 6. **Refine** - Regenerate with different focus or try again
 
 ## Example Output
 
-The skill produces interactive HTML visualizations saved to `/tmp/concept-map.html`:
+The skill produces Mermaid flowchart diagrams saved to `/tmp/concept-map.md`:
 - **Nodes**: Purple rounded boxes containing concepts
 - **Edges**: Labeled arrows showing relationships
-- **Interactivity**: Drag nodes, zoom, pan
-- **Usage**: Open the file in any web browser for full interactivity
+- **Portable**: Can be viewed in any markdown renderer
+- **Paste-friendly**: Copy and paste into Claude, GitHub, or other platforms to see rendered diagram
+- **Rich complexity**: Shows all concepts and relationships from the knowledge graph
+
+**Alternative output**: Interactive HTML visualization saved to `/tmp/concept-map.html` with drag, zoom, and pan features.
 
 **Key features:**
 - Emphasizes **why the subject matters**, not just facts
@@ -119,9 +122,13 @@ Stage 1: Summarization (panel of experts)
     ↓
 Stage 2: RDF Knowledge Graph (source of truth)
     ↓
-Stage 3: Cytoscape Visualization (saved to /tmp/concept-map.html)
+Stage 3: Mermaid Visualization (saved to /tmp/concept-map.md)
     ↓
-Open in browser for full interactivity
+View in markdown viewer or paste into Claude/GitHub
+
+Alternative: Cytoscape HTML (interactive)
+    ↓
+Saved to /tmp/concept-map.html → Open in browser
 ```
 
 ### Unified Input Layer
@@ -144,12 +151,13 @@ The skill automatically detects input type and routes appropriately:
 
 ### Prompt Engineering
 
-The skill uses four carefully engineered prompts in `prompts/`:
+The skill uses carefully engineered prompts in `prompts/`:
 
 1. **`focusing-questions.md`** - Generates 3 dynamic perspectives
 2. **`summarize.md`** - "Panel of experts" with distinction/contrast emphasis
 3. **`rdf.md`** - Converts to RDF triples with strict rules
-4. **`cytoscape.md`** - Transforms to interactive HTML visualization
+4. **`mermaid.md`** - Transforms to Mermaid flowchart (default, renders inline)
+5. **`cytoscape.md`** - Transforms to interactive HTML (alternative for Claude Code)
 
 These prompts contain extensive rules developed through iteration to prevent LLM failure modes.
 
@@ -174,11 +182,15 @@ These prompts contain extensive rules developed through iteration to prevent LLM
 
 ### Output Format
 
-**File location:** The visualization is saved to `/tmp/concept-map.html`
+**Default (Mermaid):** The visualization is saved to `/tmp/concept-map.md`. You can:
+- Open it in any markdown viewer (VS Code, Typora, Obsidian, etc.)
+- Paste the contents into Claude to see it rendered inline
+- Paste into GitHub comments/issues to share
+- Use with any tool that renders Mermaid diagrams
 
-**How to use:** Open the file in any web browser (Chrome, Firefox, Safari, etc.) for full interactivity.
+**Alternative (Cytoscape HTML):** If you request HTML output for interactive features, the visualization is saved to `/tmp/concept-map.html`. Open this file in any web browser (Chrome, Firefox, Safari, etc.) for full interactivity with drag, zoom, and pan features.
 
-**Session-persistent:** The file has a fixed name, so it will be overwritten if you generate a new map in the same session. This allows for iterative refinement.
+**Session-persistent:** Both output files have fixed names and will be overwritten if you generate a new map in the same session. This allows for iterative refinement.
 
 ### Wikipedia Access
 
@@ -212,6 +224,13 @@ Then update line 78:
 
 ### Modify Visual Style
 
+**For Mermaid (default):**
+Edit `prompts/mermaid.md` classDef to change:
+- Node fill color: `fill:#EDEEFA`
+- Border color: `stroke:#9B8FD9`
+- Layout direction: `flowchart TD` (top-down) vs `flowchart LR` (left-right)
+
+**For Cytoscape HTML (alternative):**
 Edit `prompts/cytoscape.md` to change:
 - Node colors: `'background-color': '#EDEEFA'`
 - Border colors: `'border-color': '#9B8FD9'`
@@ -219,10 +238,12 @@ Edit `prompts/cytoscape.md` to change:
 
 ### Alternative Visualizations
 
-The skill includes `prompts/dot.md` (Graphviz DOT) preserved for reference. You could add:
-- Mermaid diagrams
-- D3.js visualizations
-- SVG output for Claude Desktop artifacts
+The skill supports multiple visualization formats:
+- **Mermaid** (default) - inline rendering
+- **Cytoscape** (alternative) - interactive HTML
+- **Graphviz DOT** (historical) - `prompts/dot.md` preserved for reference
+
+You could add other formats like D3.js or custom SVG output.
 
 ## Troubleshooting
 
@@ -230,9 +251,11 @@ The skill includes `prompts/dot.md` (Graphviz DOT) preserved for reference. You 
 - **Solution:** Use file upload instead
 - The skill validates WebFetch output and will notify you
 
-### Can't Find the Visualization
-- **Location:** Check `/tmp/concept-map.html`
-- **How to open:** `open /tmp/concept-map.html` (macOS) or open in any browser
+### Can't See the Visualization
+- **Mermaid (default):** Check `/tmp/concept-map.md`
+- **How to view:** Open in markdown viewer or paste contents into Claude/GitHub
+- **If you requested HTML:** Check `/tmp/concept-map.html`
+- **How to open HTML:** `open /tmp/concept-map.html` (macOS) or open in any browser
 
 ### Missing Expected Concepts
 - Try regenerating (non-deterministic by design)
@@ -254,7 +277,8 @@ llmapper-skill/
 │   ├── focusing-questions.md  # Stage 0: Generate perspectives
 │   ├── summarize.md        # Stage 1: Extract concepts
 │   ├── rdf.md              # Stage 2: Knowledge graph
-│   ├── cytoscape.md        # Stage 3: Visualization (active)
+│   ├── mermaid.md          # Stage 3: Mermaid visualization (default)
+│   ├── cytoscape.md        # Stage 3: Cytoscape HTML (alternative)
 │   └── dot.md              # Stage 3: Graphviz (reference)
 ├── CLAUDE.md               # Developer documentation
 ├── README.md               # This file
@@ -267,18 +291,20 @@ llmapper-skill/
 |---------|----------------|----------------|
 | Input | Wikipedia URLs | Files, URLs, pasted text |
 | Dependencies | llm, Graphviz, ImageMagick | None (native Claude) |
-| Platform | macOS/Linux | Claude Desktop + Claude Code |
-| Output | PNG file | Interactive HTML (saved to `/tmp/concept-map.html`) |
+| Platform | macOS/Linux | Claude Desktop + Claude Code + Web |
+| Output | PNG file | Markdown with Mermaid or HTML |
 | Focusing | Predefined | User chooses from 3 options |
-| Visualization | Graphviz | Cytoscape.js |
+| Visualization | Graphviz | Mermaid (default), Cytoscape.js (alternative) |
 | Distinctions | Implicit | Explicit emphasis |
+| Rendering | External file | Saved file (can paste for inline) |
 
 ## Future Enhancements
 
 ### High Priority
+- [x] Mermaid visualization format (completed)
 - [ ] Automatic fallback to file upload when WebFetch blocked
-- [ ] Multiple output format options (Cytoscape, Graphviz, Mermaid, etc.)
-- [ ] Custom output directory option (instead of fixed `/tmp/llmapper.html`)
+- [ ] User preference for output format (Mermaid, Cytoscape, Graphviz)
+- [ ] Custom output directory option for files (instead of fixed `/tmp/` directory)
 
 ### Input Expansion
 - [ ] Multiple articles → merged map
@@ -294,11 +320,12 @@ llmapper-skill/
 
 ## Known Limitations
 
-1. **File must be opened in browser** - output saved to `/tmp/concept-map.html`, not rendered inline
-2. **Wikipedia may block WebFetch** - use file upload instead
-3. **Non-deterministic output** - different runs produce different maps (by design)
-4. **Limited to ~15k chars** - very long articles may be truncated
-5. **Session file persistence** - `/tmp/concept-map.html` overwritten on each run (feature for iterative refinement)
+1. **Mermaid layout constraints** - Mermaid automatic layout may not be optimal for very large graphs (20+ nodes)
+2. **File must be viewed separately** - Output saved to `/tmp/concept-map.md`, requires separate viewer or paste action
+3. **Wikipedia may block WebFetch** - use file upload instead
+4. **Non-deterministic output** - different runs produce different maps (by design)
+5. **Limited to ~15k chars** - very long articles may be truncated
+6. **Session file persistence** - Output files overwritten on each run (feature for iterative refinement)
 
 ## Credits
 
@@ -309,11 +336,14 @@ Prompts developed through extensive iteration and testing.
 Uses:
 - "Panel of experts" prompt engineering pattern
 - RDF as canonical knowledge representation
-- Cytoscape.js for interactive visualization
+- Mermaid for inline visualization (default)
+- Cytoscape.js for interactive HTML visualization (alternative)
 - Distinction/contrast emphasis for deeper understanding
 
 ## Related Resources
 
+- [Mermaid Documentation](https://mermaid.js.org/intro/)
+- [Mermaid Flowchart Syntax](https://mermaid.js.org/syntax/flowchart.html)
 - [Cytoscape.js Documentation](https://js.cytoscape.org/)
 - [RDF Primer](https://www.w3.org/TR/rdf11-primer/)
 - [Concept Mapping Theory](https://en.wikipedia.org/wiki/Concept_map)
