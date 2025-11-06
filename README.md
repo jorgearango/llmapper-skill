@@ -16,18 +16,26 @@ The skill processes content through four stages:
 
 ## Installation
 
-**Option 1: Download ZIP (easiest)**
-1. Download [llmapper-skill.zip](llmapper-skill.zip)
-2. Unzip to `~/.claude/skills/llmapper`
+### Requirements
 
-**Option 2: Clone repository**
+- Claude Pro, Max, Team, or Enterprise account
+- Code execution enabled (Settings → Capabilities)
+
+### Steps
+
+1. Download [llmapper-skill.zip](llmapper-skill.zip)
+2. Go to [claude.ai](https://claude.ai)
+3. Navigate to **Settings → Capabilities → Upload Skill**
+4. Upload the `llmapper-skill.zip` file
+
+The skill will be available immediately in your conversations.
+
+### Alternative: Claude Code
+
+If you're using Claude Code, clone the repository to `~/.claude/skills/llmapper`:
+
 ```bash
 git clone http://github.com/jorgearango/llmapper-skill ~/.claude/skills/llmapper
-```
-
-**Verify installation:**
-```bash
-ls -la ~/.claude/skills/llmapper/SKILL.md
 ```
 
 ## Usage

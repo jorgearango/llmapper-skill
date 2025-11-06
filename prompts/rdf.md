@@ -77,6 +77,36 @@ In the template above, "George Lucas" is a subject, "Star Wars" is an object, an
 
 Keep the template format intact. You MUST include relationships between concepts. Relationships are predicates. Predicates MUST have labels.
 
+## CRITICAL: Predicates MUST Be Pure Verbs
+
+**Every predicate in your RDF output must be a VERB that expresses an action or relationship.**
+
+✅ **GOOD predicates (pure verbs):**
+- "creates"
+- "influences"
+- "opposes"
+- "enables"
+- "threatens"
+- "transforms"
+- "requires"
+- "produces"
+
+❌ **BAD predicates (not pure verbs):**
+- "is part of" (contains noun "part")
+- "has feature" (contains noun "feature")
+- "provides service" (contains noun "service")
+- "received grant" (contains noun "grant")
+- "is a type of" (not a meaningful verb)
+
+**When you find a predicate with a noun in it:**
+1. Extract the noun and make it a separate node in the graph
+2. Reduce the predicate to just the verb
+3. Create proper subject-verb-object relationships
+
+**Example transformation:**
+- BAD: `"Orchestra" "offers service" "Education Programs"`
+- GOOD: `"Orchestra" "offers" "Service"` + `"Service" "includes" "Education Programs"`
+
 The text you'll be analyzing is factual. Assume all the information you need is contained in the text. Don't include concepts that aren't present in the text.
 
 
@@ -131,12 +161,13 @@ Follow these steps:
 - The article's title is the first subject in the graph
 - All subjects and objects must be connected (directly or indirectly) to the title subject
 - If a subject doesn't somehow connect to the title subject, don't include it
-- Subjects must be nouns
-- Objects must be nouns
-- Predicates must be verbs
-- If a predicate includes a noun, remove the noun from the predicate and add it as a subject in the graph - for example, if a predicate says "has repertoire," repertoire must be a predicate in the graph
-- If there are several triples with predicates that include the same noun (e.g., "offersService,") then "service" should be the subject of a separate triple – create relationships between this triple and the triples it referred to (the services offered)
-- Predicates should not include terms also present in objects – for example, if the predicate "received grant" points to an object called "grant," remove the word "grant" from the predicate so it only says "received"
+- **CRITICAL: Subjects must be nouns or noun phrases**
+- **CRITICAL: Objects must be nouns or noun phrases**
+- **CRITICAL: Predicates must be PURE VERBS with no nouns embedded**
+- If a predicate includes a noun, YOU MUST remove the noun from the predicate and add it as a separate node in the graph - for example, if a predicate says "has repertoire," remove "repertoire" from the predicate and create a "Repertoire" node
+- If there are several triples with predicates that include the same noun (e.g., "offers service,") then "Service" should be its own node in the graph – create relationships between this node and the nodes it connects to
+- Predicates must not include terms also present in objects – for example, if the predicate "received grant" points to an object called "Grant," remove the word "grant" from the predicate so it only says "received"
+- **EVERY predicate must be testable as a verb** - you should be able to read "Subject VERB Object" as a natural sentence
 - Use synechdoche to reduce the number of subjects and objects — for example, in an article about "Dunedin Symphony Orchestra," the phrase "Dunedin Symphony Orchestra" and "orchestra" are synonyms; in that case, use only "Dunedin Symphony Orchestra" for statements about it
 - Consolidate redundant terms – for example, in an article about "Dunedin Symphony Orchestra," the phrase "Dunedin Symphony Orchestra" and "orchestra" likely mean the same thing; in that case, use "Dunedin Symphony Orchestra" to represent both
 - Simplify predicates — for example, "was established in" would be written as "established"
@@ -145,5 +176,22 @@ Follow these steps:
 - Use U.S. English spelling
 
 Be comprehensive. Include as many concepts and relationships as possible from the input. But _only_ include material from the input.
+
+# VALIDATION CHECKLIST
+
+Before outputting your RDF code, verify:
+
+1. ✓ Every predicate is a PURE VERB (no nouns embedded in predicates)
+2. ✓ Every subject is a NOUN or NOUN PHRASE
+3. ✓ Every object is a NOUN or NOUN PHRASE
+4. ✓ No predicate contains words like "has", "is a", "type of" without being transformed
+5. ✓ Any noun found in a predicate has been extracted as a separate node
+6. ✓ All triples form proper subject-verb-object relationships
+7. ✓ Each relationship can be read as a natural sentence: "Subject VERB Object"
+
+**Test each triple by reading it aloud:**
+- "Orchestra creates Music" ✓ (verb is pure)
+- "Orchestra has repertoire Music" ✗ (contains noun "repertoire" - must extract it)
+- "Orchestra performs Music" ✓ (verb is pure)
 
 This is the article you will render in RDF format:
