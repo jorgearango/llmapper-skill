@@ -1,5 +1,7 @@
 # LLMapper Skill
 
+![LLMapper Sample Concept Map](llmapper-sample.png)
+
 A Claude skill that generates concept maps from articles using a multi-stage LLM pipeline. Works with **file uploads** (PDFs, text files), **URLs**, and **pasted text**. Displays Mermaid diagrams inline in Claude and saves them for reuse.
 
 ## Overview
