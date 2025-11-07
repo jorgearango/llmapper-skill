@@ -4,6 +4,8 @@
 
 A [Claude Skill](https://www.claude.com/blog/skills) that generates concept maps from articles using a multi-stage LLM pipeline. Works with **file uploads** (PDFs, text files), **URLs**, and **pasted text**. Displays Mermaid diagrams inline in Claude and saves them for reuse.
 
+*This Skill was developed using [Claude Code](https://www.claude.com/product/claude-code) based on my original [LLMapper project](https://github.com/jorgearango/llmapper).*
+
 ## Overview
 
 LLMapper transforms articles into interactive visual knowledge graphs that answer two key questions:
